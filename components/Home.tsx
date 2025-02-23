@@ -74,7 +74,7 @@ const Home = () => {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1, delay: 1 }}
-        className='z-[50] absolute  sm:top-[100px] sm:right-[5%] '
+        className='  sm:top-[100px] sm:right-[5%] '
       >
         <Image
           src={hero1}

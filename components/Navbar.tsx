@@ -2,17 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import { usePathname } from "next/navigation";
-import {
-  FaHome,
-  FaCog,
-  FaBoxOpen,
-  FaDollarSign,
-  FaEnvelope,
-} from "react-icons/fa";
+import { FaHome, FaCog, FaBoxOpen, FaDollarSign, FaEnvelope } from "react-icons/fa";
 import gymlogo from "@/public/gymlogo.jpg";
 import placeholderImage from "@/public/placeholder.png";
+import Gymmy from "./Gymmy";
 
 // Define type for navigation links
 interface NavLink {
@@ -23,6 +18,7 @@ interface NavLink {
 
 const Navbar: React.FC = () => {
   const pathname = usePathname();
+  const [showChatbot, setShowChatbot] = useState(false);
 
   const isActive = (route: string): boolean => pathname === route;
 
@@ -37,14 +33,14 @@ const Navbar: React.FC = () => {
   return (
     <nav className="flex flex-col">
       {/* Desktop Navbar */}
-      <div className="hidden lg:flex justify-between items-center p-4">
+      <div className=" lg:flex flex justify-between items-center p-4">
         <div className="flex items-center gap-2">
-          <Image src={gymlogo} alt="Gym Logo" width={60} height={60} className="object-contain" />
-          <h1 className="text-3xl font-serif font-bold">
+          <Image src={gymlogo} alt="Gym Logo" width={600} height={600} className="object-contain  h-10 w-10" />
+          <h1 className="sm:text-3xl font-serif font-bold">
             FITN<strong className="text-orange-500">ASE</strong>
           </h1>
         </div>
-        <ul className="flex gap-8">
+        <ul className="hidden lg:flex gap-8">
           {navLinks.map(({ name, path }) => (
             <li key={path}>
               <Link href={path} className={`transition-colors duration-300 hover:text-orange-500 ${
@@ -56,8 +52,20 @@ const Navbar: React.FC = () => {
           ))}
         </ul>
         <div className="flex items-center gap-4">
+          <button
+            className="border hidden sm:flex lg:flex  border-orange-500 text-orange-500 px-4 py-2 rounded-lg"
+            onClick={() => setShowChatbot((prev) => !prev)}
+          >
+            ✨ASK GYMMY
+          </button>
+          <button
+            className="border sm:hidden lg:hidden border-orange-500 text-orange-500 px-4 py-2 rounded-lg"
+            onClick={() => setShowChatbot((prev) => !prev)}
+          >
+            ✨
+          </button>
           <Image src={placeholderImage} alt="Profile" width={40} height={40} className="rounded-full" />
-          <button className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition">
+          <button className="bg-orange-500 sm:block hidden text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition">
             JOIN US
           </button>
         </div>
@@ -76,6 +84,9 @@ const Navbar: React.FC = () => {
           </Link>
         ))}
       </div>
+
+      {/* Chatbot Overlay */}
+      {showChatbot && <Gymmy onClose={() => setShowChatbot(false)} />}
     </nav>
   );
 };

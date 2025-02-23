@@ -1,4 +1,5 @@
 import Billing from '@/components/Billing';
+
 import Home from '@/components/Home';
 import OurProgramms from '@/components/OurProgramms';
 import Trainers from '@/components/Trainers';
@@ -7,7 +8,9 @@ import React from 'react';
 
 const Page = () => {
   return (
-    <div className="grid ">
+    <div className="grid">
+
+      
       
       <section id="home">
         <Home />
@@ -27,7 +30,7 @@ const Page = () => {
       </section>
 
       <section id='billing'>
-        <Billing/>
+         <Billing/>
       </section>
     </div>
   );
