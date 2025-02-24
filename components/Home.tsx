@@ -9,7 +9,7 @@ const Home = () => {
   return (
     <div className='sm:flex items-center   min-h-screen  mt-10  justify-between'>
 
-      <div className='sm:flex   flex-col gap-2 sm:w-[70%]'>
+      <div className='sm:flex sm:mb-[10em]  flex-col gap-2 sm:w-[70%]'>
         <motion.h2 
           initial={{ opacity: 0, y: -50 }} 
           animate={{ opacity: 1, y: 0 }} 
@@ -18,6 +18,10 @@ const Home = () => {
         >
           SINCE-1998
         </motion.h2>
+
+       
+
+       
 
         <motion.h1
           initial={{ opacity: 0, x: -100 }} 

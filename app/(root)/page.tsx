@@ -1,4 +1,5 @@
 import Billing from '@/components/Billing';
+import BMIPage from '@/components/BMIPage';
 
 import Home from '@/components/Home';
 import OurProgramms from '@/components/OurProgramms';
@@ -15,6 +16,10 @@ const Page = () => {
       <section id="home">
         <Home />
       </section>
+
+      {/* <section>
+        <BMIPage/>
+      </section> */}
 
       
       <section id="why-choose-us">

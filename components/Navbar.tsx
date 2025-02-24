@@ -8,6 +8,7 @@ import { FaHome, FaCog, FaBoxOpen, FaDollarSign, FaEnvelope } from "react-icons/
 import gymlogo from "@/public/gymlogo.jpg";
 import placeholderImage from "@/public/placeholder.png";
 import Gymmy from "./Gymmy";
+import AddButton from "./AddButton";
 
 // Define type for navigation links
 interface NavLink {
@@ -52,6 +53,11 @@ const Navbar: React.FC = () => {
           ))}
         </ul>
         <div className="flex items-center gap-4">
+          <Link href={"/addproduct"}>
+          <div className="flex items-center">
+            <AddButton/>
+          </div>
+          </Link>
           <button
             className="border hidden sm:flex lg:flex  border-orange-500 text-orange-500 px-4 py-2 rounded-lg"
             onClick={() => setShowChatbot((prev) => !prev)}
@@ -65,9 +71,11 @@ const Navbar: React.FC = () => {
             ✨
           </button>
           <Image src={placeholderImage} alt="Profile" width={40} height={40} className="rounded-full" />
-          <button className="bg-orange-500 sm:block hidden text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition">
-            JOIN US
-          </button>
+         <Link href="/sign-up">
+         <button className="bg-orange-500 sm:block hidden text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition">
+            SIGN UP
+         </button>
+         </Link>
         </div>
       </div>
 
