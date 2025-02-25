@@ -24,6 +24,13 @@ declare module "next-auth" {
   interface User extends DefaultUser {
     id: string;
     isAdmin: boolean;
+    subscription?: {
+      planName: string;
+      startDate: Date;
+      endDate: Date;
+      price: number;
+      qrCode: string;
+    };
   }
 }
 

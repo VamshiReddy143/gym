@@ -74,10 +74,15 @@ const SignUp = () => {
  
 
   return (
-    <div className="flex justify-center items-center min-h-screen ">
+    <div style={{
+      backgroundImage: "url('/background.jpg')", width: "100%",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+    }}  className="flex justify-center   items-center min-h-screen ">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-4 px-8 py-6 bg-gray-800 rounded-2xl transition-transform transform hover:scale-105 border border-gray-700 shadow-lg w-96"
+        className="flex flex-col gap-4 px-8 py-6 bg-gray-800 rounded-2xl transition-transform transform hover:scale-105 border border-gray-700 shadow-lg w-96  bg-black/70 backdrop-blur-sm  border-white/20"
       >
         <div className="flex items-center gap-2">
           <Image src={gymlogo} alt="Gym Logo" width={600} height={600} className="object-contain  h-10 w-10" />
@@ -88,7 +93,7 @@ const SignUp = () => {
 
 
           {/* Username Field */}
-        <div className="flex items-center gap-2 p-3 bg-gray-700 rounded-lg">
+        <div className="flex items-center gap-2 p-3 bg-gray-900 rounded-lg">
           <User className="w-5 h-5 text-gray-400" />
           <input
           {...register("name")}
@@ -101,7 +106,7 @@ const SignUp = () => {
         {errors.name && <p className="text-red-500">{errors.name.message}</p>}
 
         {/* Email Field */}
-        <div className="flex items-center gap-2 p-3 bg-gray-700 rounded-lg">
+        <div className="flex items-center gap-2 p-3 bg-gray-900 rounded-lg">
           <Mail className="w-5 h-5 text-gray-400" />
           <input
           {...register("email")}
@@ -117,7 +122,7 @@ const SignUp = () => {
       
 
         {/* Password Field */}
-        <div className="flex items-center gap-2 p-3 bg-gray-700 rounded-lg">
+        <div className="flex items-center gap-2 p-3 bg-gray-900 rounded-lg">
           <Lock className="w-5 h-5 text-gray-400" />
           <input
           {...register("password")}
@@ -155,7 +160,7 @@ const SignUp = () => {
                 <h1>Already have an account?</h1>
             </div>
           <Link href="/sign-in">
-            <button className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition">
+            <button className="px-6 py-2 bg-[#f65403] text-white rounded-lg  transition">
               Login
             </button>
           </Link>

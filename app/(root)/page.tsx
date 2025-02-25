@@ -3,6 +3,7 @@ import BMIPage from '@/components/BMIPage';
 
 import Home from '@/components/Home';
 import OurProgramms from '@/components/OurProgramms';
+import Timetable from '@/components/Timetable';
 import Trainers from '@/components/Trainers';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import React from 'react';
@@ -37,6 +38,8 @@ const Page = () => {
       <section id='billing'>
          <Billing/>
       </section>
+
+     
     </div>
   );
 };

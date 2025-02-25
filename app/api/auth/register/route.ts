@@ -24,7 +24,8 @@ export async function POST(req:NextRequest){
             image:"",
             isAdmin:false,
             phonenumber:"",
-            Address:""
+            Address:"",
+            subscription:""
         })
         return NextResponse.json({message:"User created successfully",user:newUser._id},{status:201})
     } catch (error) {

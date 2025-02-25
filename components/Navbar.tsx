@@ -9,6 +9,7 @@ import gymlogo from "@/public/gymlogo.jpg";
 import placeholderImage from "@/public/placeholder.png";
 import Gymmy from "./Gymmy";
 import AddButton from "./AddButton";
+import { DropdownMenuDemo } from "./DropdownMenu";
 
 // Define type for navigation links
 interface NavLink {
@@ -50,7 +51,9 @@ const Navbar: React.FC = () => {
                 {name}
               </Link>
             </li>
+           
           ))}
+          <DropdownMenuDemo/>
         </ul>
         <div className="flex items-center gap-4">
           <Link href={"/addproduct"}>
@@ -70,7 +73,9 @@ const Navbar: React.FC = () => {
           >
             ✨
           </button>
-          <Image src={placeholderImage} alt="Profile" width={40} height={40} className="rounded-full" />
+         <Link href="/profile">
+         <Image src={placeholderImage} alt="Profile" width={40} height={40} className="rounded-full" />
+         </Link>
          <Link href="/sign-up">
          <button className="bg-orange-500 sm:block hidden text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition">
             SIGN UP

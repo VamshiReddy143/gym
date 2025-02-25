@@ -9,7 +9,19 @@ export interface IUser extends Document {
     phonenumber?: number;
     Address?: string;
     isAdmin: boolean;
-  
+    gender?: string;
+    subscription?: {
+        planName: string;
+        startDate: Date;
+        endDate: Date;
+        price: number;
+        qrCode: string;
+    };
+    streak: number;
+    points: number;
+    lastChallengeDate: string;
+    completedChallenges: string[];
+    awards:string[]
 }
 
 const UserSchema = new Schema<IUser>({
@@ -18,11 +30,24 @@ const UserSchema = new Schema<IUser>({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String },
+    gender: { type: String },
     phonenumber: { type: Number },
     Address: { type: String },
     isAdmin: { type: Boolean, default: false },
-    
-});
+    subscription: {
+        plan: { type: String },
+        startDate: { type: Date },
+        endDate: { type: Date },
+        price: { type: Number },
+        qrCode: { type: String },
+    },
+    streak: { type: Number, default: 0 },
+    points: { type: Number, default: 0 },
+    lastChallengeDate: { type: String, default: null },
+    completedChallenges: { type: [String], default: [] },
+    awards:{type:[String],default:[]}
+},{
+    timestamps: true,});
 
 const User = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
 
