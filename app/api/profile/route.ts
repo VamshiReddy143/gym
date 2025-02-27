@@ -52,6 +52,7 @@ export async function GET() {
                 streak: user.streak,
                 points: user.points,       
                 awards:user.awards,
+                createdAt: user.createdAt,
                 completedChallenges:user.completedChallenges
             },
         });

@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import { authOptions } from "../auth/authOptions";
 import { getServerSession } from "next-auth";
 import SessionWrapper from "@/components/SessionWrappee";
+import Footer from "@/components/FooterComponent";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +37,10 @@ export default async function RootLayout({
       <SessionWrapper session={session}>
         <div className="sm:px-5 px-5">
         <Navbar/>
-        {children}
+    <div className="mt-[3em]">
+    {children}
+    </div>
+        <Footer/>
         </div>
       </SessionWrapper>
       </body>

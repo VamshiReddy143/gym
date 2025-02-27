@@ -20,7 +20,7 @@ export function DropdownMenuDemo() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="text-white bg-transparent">More</Button>
+        <Button variant="outline" className="text-white bg-transparent border-none">More</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuSeparator />
@@ -28,8 +28,12 @@ export function DropdownMenuDemo() {
          <Link href={"/Timetable"}>
             <DropdownMenuRadioItem value="top" className=" bg-transparent cursor-pointer">Timetable</DropdownMenuRadioItem>
          </Link>
-          <DropdownMenuRadioItem value="bottom">Bottom</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="right">Right</DropdownMenuRadioItem>
+          <Link href={"/admin/dashboard"}>
+          <DropdownMenuRadioItem value="bottom">AdminDashboard</DropdownMenuRadioItem>
+          </Link>
+          <Link href={"/plans"}>
+          <DropdownMenuRadioItem value="right">Workouts</DropdownMenuRadioItem>
+          </Link>
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>

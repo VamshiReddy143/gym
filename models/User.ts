@@ -9,6 +9,7 @@ export interface IUser extends Document {
     phonenumber?: number;
     Address?: string;
     isAdmin: boolean;
+    role:string;
     gender?: string;
     subscription?: {
         planName: string;
@@ -21,7 +22,13 @@ export interface IUser extends Document {
     points: number;
     lastChallengeDate: string;
     completedChallenges: string[];
-    awards:string[]
+    awards:string[],
+    notifications: {
+        message: string;
+        createdAt: Date;
+        sentBy: string; 
+    }[];
+    
 }
 
 const UserSchema = new Schema<IUser>({
@@ -31,11 +38,19 @@ const UserSchema = new Schema<IUser>({
     email: { type: String, required: true, unique: true },
     password: { type: String },
     gender: { type: String },
+    role: { type: String, enum: ["admin", "user", "trainer"], default: "user" },
     phonenumber: { type: Number },
     Address: { type: String },
     isAdmin: { type: Boolean, default: false },
+    notifications: [
+        {
+            message: { type: String, required: true },
+            createdAt: { type: Date, default: Date.now },
+            sentBy: { type: String, required: true },
+        },
+    ],
     subscription: {
-        plan: { type: String },
+        planName: { type: String },
         startDate: { type: Date },
         endDate: { type: Date },
         price: { type: Number },

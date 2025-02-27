@@ -1,3 +1,4 @@
+
 import Timetable from '@/components/Timetable'
 import React from 'react'
 
