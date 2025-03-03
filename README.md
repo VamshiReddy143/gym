@@ -93,19 +93,25 @@ npm start
 
 ## 📸 Screenshots  
 
+
 ![HOME_PAGE](public/screenshot.png) 
+![SIGNUP_PAGE](public/screenshot16.png) 
+![SIGNIN_PAGE](public/screenshot17.png) 
 ![SUBSCRIPTION_PAGE](public/screenshot2.png) 
 ![GYM_CHAT_PAGE](public/screenshot3.png) 
 ![PROFILE_PAGE](public/screenshot4.png) 
 ![QR_CHECKIN](public/screenshot5.png) 
 ![DAILY_ACTIVITIES](public/screenshot6.png) 
-![ADMIN_DASHBOARD](public/screenshot7.png) 
+![ADMIN_DASHBOARD](public/screenshot23.png) 
 ![SEND_NOTIFICATIONS](public/screenshot9.png) 
-![PRODUCTS_PAGE](public/screenshot10.png) 
+![PRODUCTS_PAGE](public/screenshot19.png) 
+![CREATE_PRODUCTS](public/screenshot22.png) 
+![UPDATE_PROFILE](public/screenshot20.png) 
+![ORDERS](public/screenshot21.png) 
 ![WORKOUT](public/screenshot11.png) 
 ![PLAN AND DIET](public/screenshot12.png) 
 ![ASK_AI](public/screenshot13.png) 
-![LEADERBOARD](public/screenshot14.png) 
+![LEADERBOARD](public/screenshot18.png) 
 ![NOTIFICATIONS](public/screenshot15.png) 
 
 
