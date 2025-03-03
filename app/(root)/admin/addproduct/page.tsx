@@ -1,11 +1,19 @@
-// app/admin/products/create/page.tsx
 "use client";
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FaUpload, FaPlus, FaSpinner, FaTimes } from "react-icons/fa";
-import { CldUploadWidget } from "next-cloudinary";
+import { CldUploadWidget, CloudinaryUploadWidgetResults } from "next-cloudinary";
 import NextImage from "next/image";
+
+// Define the shape of a successful upload's info property
+interface CloudinaryUploadInfo {
+    asset_id?: string;
+    public_id?: string;
+    secure_url: string;
+    width?: number;
+    height?: number;
+}
 
 const CreateProductPage = () => {
     const [formData, setFormData] = useState({
@@ -27,9 +35,15 @@ const CreateProductPage = () => {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleImageUpload = (result: any) => {
-        if (result.event === "success" && result.info && result.info.secure_url) {
-            const imageUrl = result.info.secure_url;
+    const handleImageUpload = (result: CloudinaryUploadWidgetResults) => {
+        if (
+            result.event === "success" &&
+            result.info &&
+            typeof result.info === "object" &&
+            "secure_url" in result.info
+        ) {
+            const info = result.info as CloudinaryUploadInfo;
+            const imageUrl = info.secure_url;
             setFormData((prev) => ({ ...prev, image: imageUrl }));
             setPreviewVisible(true);
             console.log("Image uploaded:", imageUrl);
@@ -72,7 +86,7 @@ const CreateProductPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-black text-white overflow-hidden relative ">
+        <div className="min-h-screen bg-black text-white overflow-hidden relative">
             {/* Neon Grid Background */}
             <motion.div
                 className="absolute inset-0 bg-[linear-gradient(to_right,#ff4500_1px,transparent_1px),linear-gradient(to_bottom,#ff4500_1px,transparent_1px)] bg-[size:40px_40px] opacity-10 pointer-events-none"
@@ -82,23 +96,13 @@ const CreateProductPage = () => {
 
             {/* Cyberpunk Glow Overlay */}
             <motion.div
-                className="absolute inset-0  pointer-events-none"
+                className="absolute inset-0 pointer-events-none"
                 animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.4, 0.3] }}
                 transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
             />
 
             {/* Main Content */}
             <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-                {/* <motion.h1
-                    initial={{ opacity: 0, y: -60 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold uppercase tracking-wider text-center mb-12 bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(255,69,0,0.7)]"
-                >
-                    Forge a New Product
-                </motion.h1> */}
-
-                {/* Form Container */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.85 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -136,7 +140,6 @@ const CreateProductPage = () => {
                                 placeholder="Enter product designation"
                                 required
                             />
-                          
                         </motion.div>
 
                         {/* Image Upload */}
@@ -170,7 +173,7 @@ const CreateProductPage = () => {
                                     </motion.button>
                                 )}
                             </CldUploadWidget>
-                            {formData.image && (
+                            {previewVisible && (
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
@@ -216,7 +219,6 @@ const CreateProductPage = () => {
                                 placeholder="Set value"
                                 required
                             />
-                          
                         </motion.div>
 
                         {/* Description */}
@@ -235,7 +237,6 @@ const CreateProductPage = () => {
                                 placeholder="Product specs"
                                 required
                             />
-                           
                         </motion.div>
 
                         {/* Category */}
@@ -250,9 +251,7 @@ const CreateProductPage = () => {
                                 name="category"
                                 value={formData.category}
                                 onChange={handleInputChange}
-                                className="w-full p-3 rounded-lg bg-gray-800/80 text-white
-                                
-                                 border border-red-700/50 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 transition-all duration-300 shadow-[inset_0_0_8px_rgba(255,69,0,0.2)]"
+                                className="w-full p-3 rounded-lg bg-gray-800/80 text-white border border-red-700/50 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 transition-all duration-300 shadow-[inset_0_0_8px_rgba(255,69,0,0.2)]"
                                 required
                             >
                                 <option value="" disabled className="text-gray-500">
@@ -264,7 +263,6 @@ const CreateProductPage = () => {
                                 <option value="supplements">Supplements</option>
                                 <option value="accessories">Accessories</option>
                             </select>
-                        
                         </motion.div>
 
                         {/* Submit Button */}

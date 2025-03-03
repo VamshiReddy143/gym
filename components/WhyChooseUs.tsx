@@ -12,7 +12,7 @@ import endurance from "@/public/endurance.png";
 
 const WhyChooseUs = () => {
     return (
-        <div className="min-h-screen bg-black text-white px-8 py-16 overflow-hidden relative flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-20">
+        <div className="min-h-screen bg-black text-white px-8 py-20 overflow-hidden relative flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-20">
             {/* Subtle Background */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,0,0,0.1),_transparent_70%)] pointer-events-none opacity-50" />
             <div className="absolute inset-0 bg-[url('/gym-texture.png')] opacity-10 pointer-events-none" />
@@ -27,7 +27,7 @@ const WhyChooseUs = () => {
             >
                 {/* Animated Background Effect */}
                 <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-red-600/20 to-orange-600/20 rounded-full blur-2xl z-10"
+                    className="absolute  inset-0 bg-gradient-to-r from-red-600/20 to-orange-600/20 rounded-full blur-2xl z-10"
                     animate={{
                         scale: [1, 1.05, 1],
                         opacity: [0.6, 0.8, 0.6],
@@ -44,14 +44,14 @@ const WhyChooseUs = () => {
                     alt="Hero"
                     width={900}
                     height={800}
-                    className="max-w-[100%]  h-auto sm:h-[400px] lg:h-[500px] object-cover rounded-full  hover:scale-105 transition-all duration-500 z-[999]"
+                    className="max-w-[100%]  mt-10 h-auto sm:h-[400px] lg:h-[500px] object-cover rounded-full  hover:scale-105 transition-all duration-500 z-[999]"
                 />
                 <motion.div
                     initial={{ opacity: 0, rotate: -10 }}
                     whileInView={{ opacity: 1, rotate: 0 }}
                     transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
                     viewport={{ once: true }}
-                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20"
+                    className="absolute mt-10 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20"
                 >
                     <SpinningText className="text-orange-500 text-5xl sm:text-6xl lg:text-8xl font-extrabold tracking-wide drop-shadow-[0_0_10px_rgba(255,165,0,0.6)]">
                         Train Hard • Win Big • Grow Strong •
@@ -60,7 +60,7 @@ const WhyChooseUs = () => {
             </motion.div>
 
             {/* Features Section */}
-            <div className="flex flex-col items-center lg:items-start lg:w-1/2 relative z-20">
+            <div className="flex flex-col items-start  lg:items-start lg:w-1/2 relative z-20">
                 <motion.h2
                     initial={{ opacity: 0, y: -30 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -75,13 +75,13 @@ const WhyChooseUs = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
                     viewport={{ once: true }}
-                    className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white uppercase tracking-tight mt-4 drop-shadow-[0_0_10px_rgba(255,0,0,0.3)]"
+                    className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white uppercase tracking-tight mt-2 drop-shadow-[0_0_10px_rgba(255,0,0,0.3)]"
                 >
                     Why Choose Us?
                 </motion.h1>
 
                 {/* Feature Cards */}
-                <div className="grid grid-cols-2 gap-8 sm:gap-10 mt-12">
+                <div className="grid grid-cols-2  gap-8 sm:gap-10 mt-12">
                     {/* Feature 1 */}
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
@@ -98,7 +98,7 @@ const WhyChooseUs = () => {
                             <Image src={muscle} alt="Muscle" width={40} height={40} />
                         </motion.div>
                         <div className="flex flex-col lg:w-[70%]">
-                            <h1 className="text-xl sm:text-2xl font-extrabold text-white uppercase tracking-wide">
+                            <h1 className="text-lg sm:text-2xl font-extrabold text-white uppercase tracking-wide">
                                 Progression
                             </h1>
                             <p className="text-sm sm:text-lg text-gray-400 font-medium">
@@ -122,8 +122,8 @@ const WhyChooseUs = () => {
                         >
                             <Image src={strength} alt="Strength" width={40} height={40} />
                         </motion.div>
-                        <div className="flex flex-col lg:w-[70%]">
-                            <h1 className="text-xl sm:text-2xl font-extrabold text-white uppercase tracking-wide">
+                        <div className="flex flex-col items-  lg:w-[70%]">
+                            <h1 className="text-lg sm:text-2xl font-extrabold text-white uppercase tracking-wide">
                                 Strength
                             </h1>
                             <p className="text-sm sm:text-lg text-gray-400 font-medium">
@@ -148,7 +148,7 @@ const WhyChooseUs = () => {
                             <Image src={flexibility} alt="Flexibility" width={40} height={40} />
                         </motion.div>
                         <div className="flex flex-col lg:w-[70%]">
-                            <h1 className="text-xl sm:text-2xl font-extrabold text-white uppercase tracking-wide">
+                            <h1 className="text-lg sm:text-2xl font-extrabold text-white uppercase tracking-wide">
                                 Flexibility
                             </h1>
                             <p className="text-sm sm:text-lg text-gray-400 font-medium">
@@ -173,7 +173,7 @@ const WhyChooseUs = () => {
                             <Image src={endurance} alt="Endurance" width={40} height={40} />
                         </motion.div>
                         <div className="flex flex-col lg:w-[70%]">
-                            <h1 className="text-xl sm:text-2xl font-extrabold text-white uppercase tracking-wide">
+                            <h1 className="text-lg sm:text-2xl font-extrabold text-white uppercase tracking-wide">
                                 Endurance
                             </h1>
                             <p className="text-sm sm:text-lg text-gray-400 font-medium">

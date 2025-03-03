@@ -4,7 +4,9 @@ import Product from "@/models/Product";
 import dbConnect from "@/lib/mongodb";
 
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, context:{ params:Promise<{ id: string }> }) {
+  
+  const params  = await context.params;
   await dbConnect();
   
   try {

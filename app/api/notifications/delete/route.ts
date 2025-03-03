@@ -13,7 +13,8 @@ export async function DELETE(req: NextRequest) {
         return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = session.user.id || (session.user as any)._id || session.user.sub;
+    // Extract userId with type safety using extended next-auth types
+    const userId = session.user.id || session.user._id || session.user.sub;
     if (!userId) {
         return NextResponse.json({ success: false, message: "No user ID found" }, { status: 400 });
     }
@@ -34,8 +35,12 @@ export async function DELETE(req: NextRequest) {
         }
 
         return NextResponse.json({ success: true, message: "Notification deleted successfully" });
-    } catch (error: any) {
-        console.error("Error deleting notification:", error);
-        return NextResponse.json({ success: false, message: "Server error: " + error.message }, { status: 500 });
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error("Error deleting notification:", error.message);
+            return NextResponse.json({ success: false, message: "Server error: " + error.message }, { status: 500 });
+        }
+        console.error("Unknown error deleting notification:", error);
+        return NextResponse.json({ success: false, message: "Server error: Unknown error occurred" }, { status: 500 });
     }
 }

@@ -11,7 +11,7 @@ import { signIn } from "next-auth/react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import toast, { Toaster } from "react-hot-toast";
 
 const registerSchema = z.object({
@@ -55,16 +55,25 @@ const SignUp = () => {
             } else {
                 toast.error(response.data.error || "Registration failed.");
             }
-        } catch (error: any) {
-            toast.error(error.response?.data?.error || "Something went wrong. Please try again.");
-        }
-    };
-
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                console.error("Error registering:", error);
+                toast.error(error.response?.data?.error || "Something went wrong. Please try again.");
+              }
+              else {
+                console.error("Unknown error:", error);
+                toast.error("Something went wrong. Please try again.");
+              }
+            }
+        };
+            
     const handleGoogleSignIn = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         toast.loading("Redirecting to Google...");
         signIn("google", { callbackUrl: "/" });
     };
+
+
 
     return (
         <div
@@ -226,5 +235,5 @@ const SignUp = () => {
         </div>
     );
 };
-
+    
 export default SignUp;

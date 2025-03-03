@@ -1,199 +1,232 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import NextImage from "next/image";
 import Loading from "@/components/Loading";
 
+// Types
+interface Product {
+  _id: string;
+  name: string;
+  image: string;
+  price: number;
+}
+
 interface OrderItem {
-    product: {
-        _id: string;
-        name: string;
-        image: string;
-        price: number;
-    };
-    quantity: number;
-    price: number;
+  product: Product;
+  quantity: number;
+  price: number;
 }
 
 interface Order {
-    _id: string;
-    user: { name: string; email: string };
-    items: OrderItem[];
-    total: number;
-    status: string;
-    createdAt: string;
+  _id: string;
+  user: { name: string; email: string };
+  items: OrderItem[];
+  total: number;
+  status: "pending" | "shipped" | "delivered" | "cancelled";
+  createdAt: string;
 }
 
-const AdminOrdersPage = () => {
-    const { data: session } = useSession();
-    const [orders, setOrders] = useState<Order[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+// Constants
+const STATUS_COLORS = {
+  pending: "text-yellow-500",
+  shipped: "text-orange-500",
+  delivered: "text-green-500",
+  cancelled: "text-red-500",
+};
 
-    useEffect(() => {
-        const fetchOrders = async () => {
-          if (!session || !session.user?.id || !session.user.isAdmin) {
-            setLoading(false); 
-            setError("Unauthorized Access");
-            return;
-          }
-          try {
-            const response = await axios.get("/api/admin/orders");
-            if (response.data.success) {
-              setOrders(response.data.orders);
-            } else {
-              setError("Failed to fetch orders");
-            }
-          } catch (err) {
-            setError("An error occurred while fetching orders");
-            console.error(err);
-          } finally {
-            setLoading(false);
-          }
-        };
-        fetchOrders();
-      }, [session]);
+const ANIMATION_VARIANTS = {
+  fadeIn: { opacity: 0, y: 50 },
+  fadeInVisible: { opacity: 1, y: 0 },
+};
 
-    const handleUpdateStatus = async (orderId: string, status: string) => {
-        try {
-            const response = await axios.put(`/api/admin/orders/${orderId}`, { status });
-            if (response.data.success) {
-                setOrders((prev) =>
-                    prev.map((order) => (order._id === orderId ? { ...order, status } : order))
-                );
-            } else {
-                alert("Failed to update order status");
-            }
-        } catch (error) {
-            console.error("Error updating order status:", error);
-            alert("An error occurred while updating the order");
-        }
-    };
+const AdminOrdersPage: React.FC = () => {
+  const { data: session, status } = useSession();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    if (loading) return <Loading />;
-    if (error)
-        return (
-            <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className="text-center text-red-500 text-xl font-semibold min-h-screen flex justify-center items-center bg-black"
-            >
-                {error}
-            </motion.p>
-        );
-
-    if (!session?.user?.isAdmin) {
-        return (
-            <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className="text-center text-red-500 text-xl font-semibold min-h-screen flex justify-center items-center bg-black"
-            >
-                Unauthorized Access
-            </motion.p>
-        );
+  // Fetch orders
+  const fetchOrders = useCallback(async () => {
+    if (status === "loading" || !session?.user?.id || !session?.user?.isAdmin) {
+      setIsLoading(false);
+      setError("Unauthorized Access");
+      return;
     }
 
-    return (
-        <div className="min-h-screen bg-black text-white px-8 py-16 overflow-hidden relative">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,0,0,0.2),_transparent_70%)] pointer-events-none opacity-50" />
-            <div className="max-w-7xl mx-auto">
-                <motion.h1
-                    initial={{ opacity: 0, y: -50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="text-4xl md:text-6xl font-extrabold text-center uppercase tracking-tight text-white mb-12 drop-shadow-[0_0_10px_rgba(255,0,0,0.3)]"
-                >
-                    Admin <span className="text-orange-500">Orders</span>
-                </motion.h1>
+    try {
+      const { data } = await axios.get<{ success: boolean; orders: Order[] }>("/api/admin/orders");
+      if (data.success) {
+        setOrders(data.orders ?? []);
+      } else {
+        setError("Failed to fetch orders");
+      }
+    } catch (err) {
+      setError("An error occurred while fetching orders");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [session, status]);
 
-                {orders.length === 0 ? (
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.5 }}
-                        className="text-center text-gray-400 text-xl font-semibold"
-                    >
-                        No orders yet
-                    </motion.p>
-                ) : (
-                    <div className="space-y-8">
-                        {orders.map((order) => (
-                            <motion.div
-                                key={order._id}
-                                initial={{ opacity: 0, y: 50 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8, ease: "easeOut" }}
-                                className="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-3xl border-2 border-red-900/50 shadow-[0_0_15px_rgba(255,0,0,0.3)]"
-                            >
-                                <h2 className="text-2xl font-extrabold text-white uppercase tracking-wide mb-4">
-                                    Order #{order._id.slice(-6)} -{" "}
-                                    <span className="text-orange-500">{order.status}</span>
-                                </h2>
-                                <p className="text-gray-300 mb-2">
-                                    User: {order.user.name} ({order.user.email})
-                                </p>
-                                <p className="text-gray-300 mb-4">
-                                    Placed on: {new Date(order.createdAt).toLocaleDateString()}
-                                </p>
-                                {order.items.map((item) => (
-                                    <div key={item.product._id} className="flex items-center gap-4 mb-4">
-                                        <NextImage
-                                            src={item.product.image}
-                                            alt={item.product.name}
-                                            width={80}
-                                            height={80}
-                                            className="rounded-lg object-cover"
-                                        />
-                                        <div>
-                                            <h3 className="text-lg font-bold text-white">{item.product.name}</h3>
-                                            <p className="text-gray-400">
-                                                Qty: {item.quantity} | ${item.price.toFixed(2)} each
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                                <p className="text-xl font-bold text-white mt-4">
-                                    Total: <span className="text-orange-500">${order.total.toFixed(2)}</span>
-                                </p>
-                                <div className="mt-6 flex gap-4">
-                                    <motion.button
-                                        whileHover={{ scale: 1.05, boxShadow: "0 0 10px rgba(255,165,0,0.5)" }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => handleUpdateStatus(order._id, "shipped")}
-                                        className="px-4 py-2 bg-orange-500 text-white text-sm font-bold uppercase rounded-full hover:bg-orange-600 transition-all duration-300"
-                                    >
-                                        Mark as Shipped
-                                    </motion.button>
-                                    <motion.button
-                                        whileHover={{ scale: 1.05, boxShadow: "0 0 10px rgba(0,255,0,0.5)" }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => handleUpdateStatus(order._id, "delivered")}
-                                        className="px-4 py-2 bg-green-500 text-white text-sm font-bold uppercase rounded-full hover:bg-green-600 transition-all duration-300"
-                                    >
-                                        Mark as Delivered
-                                    </motion.button>
-                                    <motion.button
-                                        whileHover={{ scale: 1.05, boxShadow: "0 0 10px rgba(255,0,0,0.5)" }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => handleUpdateStatus(order._id, "cancelled")}
-                                        className="px-4 py-2 bg-red-500 text-white text-sm font-bold uppercase rounded-full hover:bg-red-600 transition-all duration-300"
-                                    >
-                                        Cancel Order
-                                    </motion.button>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
-                )}
-            </div>
-        </div>
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
+  // Update order status
+  const handleUpdateStatus = async (orderId: string, newStatus: Order["status"]) => {
+    try {
+      const { data } = await axios.put<{ success: boolean }>(`/api/admin/orders/${orderId}`, { status: newStatus });
+      if (data.success) {
+        setOrders((prev) =>
+          prev.map((order) => (order._id === orderId ? { ...order, status: newStatus } : order))
+        );
+      } else {
+        alert("Failed to update order status");
+      }
+    } catch (err) {
+      console.error("Error updating order status:", err);
+      alert("An error occurred while updating the order");
+    }
+  };
+
+  // Loading State
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex justify-center items-center">
+        <Loading />
+      </div>
     );
+  }
+
+  // Error or Unauthorized State
+  if (error || !session?.user?.isAdmin) {
+    return (
+      <div className="min-h-screen bg-black flex justify-center items-center">
+        <motion.p
+          variants={ANIMATION_VARIANTS}
+          initial="fadeIn"
+          animate="fadeInVisible"
+          transition={{ duration: 0.5 }}
+          className="text-center text-red-500 text-lg sm:text-xl font-semibold"
+          role="alert"
+        >
+          {error || "Unauthorized Access"}
+        </motion.p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-black text-white px-4 sm:px-8 py-12 sm:py-16 overflow-hidden relative">
+      {/* SEO-friendly hidden heading */}
+      <h1 className="sr-only">Admin Orders Dashboard</h1>
+
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,0,0,0.2),_transparent_70%)] pointer-events-none opacity-50" />
+
+      <div className="max-w-7xl mx-auto relative">
+        {/* Header */}
+        <motion.h1
+          variants={ANIMATION_VARIANTS}
+          initial="fadeIn"
+          animate="fadeInVisible"
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-center uppercase tracking-tight mb-8 sm:mb-12"
+        >
+          Admin <span className="text-orange-500">Orders</span>
+        </motion.h1>
+
+        {/* Orders List */}
+        {orders.length === 0 ? (
+          <motion.p
+            variants={ANIMATION_VARIANTS}
+            initial="fadeIn"
+            animate="fadeInVisible"
+            transition={{ duration: 0.5 }}
+            className="text-center text-gray-400 text-lg sm:text-xl font-semibold"
+          >
+            No orders yet
+          </motion.p>
+        ) : (
+          <section className="space-y-6 sm:space-y-8">
+            {orders.map((order) => (
+              <motion.article
+                key={order._id}
+                variants={ANIMATION_VARIANTS}
+                initial="fadeIn"
+                animate="fadeInVisible"
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="bg-gradient-to-br from-gray-900 to-gray-800 p-4 sm:p-6 rounded-2xl border-2 border-red-900/50 shadow-[0_0_10px_rgba(255,0,0,0.2)]"
+              >
+                <h2 className="text-xl sm:text-2xl font-extrabold uppercase tracking-wide mb-3 sm:mb-4">
+                  Order #{order._id.slice(-6)} -{" "}
+                  <span className={STATUS_COLORS[order.status]}>{order.status}</span>
+                </h2>
+                <p className="text-gray-300 text-sm sm:text-base mb-2">
+                  User: {order.user.name} ({order.user.email})
+                </p>
+                <p className="text-gray-300 text-sm sm:text-base mb-3 sm:mb-4">
+                  Placed on: {new Date(order.createdAt).toLocaleDateString()}
+                </p>
+
+                {/* Order Items */}
+                <div className="space-y-4 mb-4 sm:mb-6">
+                  {order.items.map((item) => (
+                    <div key={item.product._id} className="flex items-center gap-3 sm:gap-4">
+                      <NextImage
+                        src={item.product.image}
+                        alt={`${item.product.name} image`}
+                        width={60}
+                        height={60}
+                        className="rounded-lg object-cover"
+                        loading="lazy"
+                      />
+                      <div>
+                        <h3 className="text-base sm:text-lg font-bold">{item.product.name}</h3>
+                        <p className="text-gray-400 text-sm sm:text-base">
+                          Qty: {item.quantity} | ${item.price.toFixed(2)} each
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Total */}
+                <p className="text-lg sm:text-xl font-bold mt-4">
+                  Total: <span className="text-orange-500">${order.total.toFixed(2)}</span>
+                </p>
+
+                {/* Action Buttons */}
+                <div className="mt-4 sm:mt-6 flex flex-wrap gap-3 sm:gap-4">
+                  {[
+                    { label: "Mark as Shipped", status: "shipped", color: "bg-orange-500 hover:bg-orange-600" },
+                    { label: "Mark as Delivered", status: "delivered", color: "bg-green-500 hover:bg-green-600" },
+                    { label: "Cancel Order", status: "cancelled", color: "bg-red-500 hover:bg-red-600" },
+                  ].map((action) => (
+                    <motion.button
+                      key={action.status}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleUpdateStatus(order._id, action.status as Order["status"])}
+                      className={`px-3 sm:px-4 py-1 sm:py-2 ${action.color} text-white text-xs sm:text-sm font-bold uppercase rounded-full transition-all duration-300`}
+                      disabled={order.status === action.status}
+                      aria-label={`${action.label} for order ${order._id}`}
+                    >
+                      {action.label}
+                    </motion.button>
+                  ))}
+                </div>
+              </motion.article>
+            ))}
+          </section>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default AdminOrdersPage;

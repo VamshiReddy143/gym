@@ -4,6 +4,11 @@ import Cart from "@/models/Cart";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/auth/authOptions";
 
+interface CartItem {
+    product: string;
+    quantity: number;   
+}
+
 export async function POST(request: NextRequest) {
     await dbConnect();
     const session = await getServerSession(authOptions);
@@ -20,7 +25,7 @@ export async function POST(request: NextRequest) {
             cart = new Cart({ user: session.user.id, items: [] });
         }
 
-        const existingItemIndex = cart.items.findIndex((item: any) => item.product.toString() === productId);
+        const existingItemIndex = cart.items.findIndex((item:CartItem) => item.product.toString() === productId);
         if (existingItemIndex > -1) {
             cart.items[existingItemIndex].quantity += quantity;
         } else {

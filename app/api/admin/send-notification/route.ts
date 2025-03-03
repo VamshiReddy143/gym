@@ -19,12 +19,13 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: false, message: "Unauthorized - No session" }, { status: 401 });
     }
 
-    const isAdmin = "isAdmin" in session.user && session.user.isAdmin;
+    const isAdmin = session.user.isAdmin ?? false; // Safely check isAdmin with fallback
     if (!isAdmin) {
         return NextResponse.json({ success: false, message: "Unauthorized - Not an admin" }, { status: 403 });
     }
 
-    const adminId = session.user.id || (session.user as any)._id || session.user.sub;
+    // Extract adminId with type safety
+    const adminId = session.user.id || session.user._id || session.user.sub;
     if (!adminId) {
         console.error("No valid admin ID found in session:", session.user);
         return NextResponse.json({ success: false, message: "Server error - No admin ID" }, { status: 500 });
@@ -73,11 +74,12 @@ export async function POST(req: NextRequest) {
         console.log("Email sent successfully via Brevo:", response.data);
 
         return NextResponse.json({ success: true, message: "Notification sent successfully" });
-    } catch (error: any) {
-        console.error("Error sending notification:", error.response?.data || error.message);
-        return NextResponse.json(
-            { success: false, message: "Server error: " + (error.response?.data?.message || error.message) },
-            { status: 500 }
-        );
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error("Error sending notification:", error.message);
+            return NextResponse.json({ success: false, message: "Server error: " + error.message }, { status: 500 });
+        }
+        console.error("Unknown error sending notification:", error);
+        return NextResponse.json({ success: false, message: "Server error: Unknown error occurred" }, { status: 500 });
     }
 }

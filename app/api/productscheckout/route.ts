@@ -1,3 +1,4 @@
+// app/api/checkout/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import dbConnect from "@/lib/mongodb";
@@ -5,6 +6,22 @@ import Cart from "@/models/Cart";
 import Order from "@/models/Order";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/auth/authOptions";
+
+interface ProductItem {
+    _id: string;
+    name: string;
+    image: string;
+    price: number;
+    description: string;
+    category: "bulk" | "cut" | "items" | "supplements" | "accessories";
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+interface CartItem {
+    product: ProductItem;
+    quantity: number;
+}
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2025-01-27.acacia",
@@ -24,9 +41,12 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: false, message: "Cart is empty" }, { status: 400 });
         }
 
+        // Type the populated cart items
+        const typedCartItems = cart.items as CartItem[];
+
         const sessionStripe = await stripe.checkout.sessions.create({
             payment_method_types: ["card"],
-            line_items: cart.items.map((item: any) => ({
+            line_items: typedCartItems.map((item) => ({
                 price_data: {
                     currency: "usd",
                     product_data: {
@@ -42,15 +62,14 @@ export async function POST(request: NextRequest) {
             metadata: { userId: session.user.id },
         });
 
-       
         const order = new Order({
             user: session.user.id,
-            items: cart.items.map((item: any) => ({
+            items: typedCartItems.map((item) => ({
                 product: item.product._id,
                 quantity: item.quantity,
                 price: item.product.price,
             })),
-            total: cart.items.reduce((sum: number, item: any) => sum + item.product.price * item.quantity, 0),
+            total: typedCartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
             stripeSessionId: sessionStripe.id,
         });
         await order.save();

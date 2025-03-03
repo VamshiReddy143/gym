@@ -19,11 +19,30 @@ interface Product {
     price: number;
     description: string;
     category: string;
-}
-
-interface CartItem extends Product {
     quantity: number;
 }
+
+// interface CartItem extends Product {
+//     quantity: number;
+// }
+
+interface CartItem {
+    product: {
+      _id: string;
+      name: string;
+      image: string;
+      price: number;
+      description: string;
+      category: string;
+    };
+    _id: string;
+    name: string;
+    image: string;
+    price: number;
+    description: string;
+    category: string;
+    quantity: number;
+  }
 
 interface Pagination {
     currentPage: number;
@@ -32,7 +51,7 @@ interface Pagination {
     limit: number;
 }
 
-function debounce<T extends (...args: any[]) => void>(func: T, wait: number): (...args: Parameters<T>) => void {
+function debounce<T extends (...args:string[]) => void>(func: T, wait: number): (...args: Parameters<T>) => void {
     let timeout: NodeJS.Timeout;
     return (...args: Parameters<T>) => {
         clearTimeout(timeout);
@@ -40,175 +59,169 @@ function debounce<T extends (...args: any[]) => void>(func: T, wait: number): (.
     };
 }
 
-const ProductsList: React.FC<{ searchQuery: string; category: string; page: number; onAddToCart: (productId: string) => void }> = React.memo(
-    function ProductsListComponent({ searchQuery, category, page, onAddToCart }) {
-        const router = useRouter();
-        const [products, setProducts] = useState<Product[]>([]);
-        const [pagination, setPagination] = useState<Pagination | null>(null);
-        const [loading, setLoading] = useState(true);
-        const [error, setError] = useState<string | null>(null);
+const ProductsList: React.FC<{
+    searchQuery: string;
+    category: string;
+    page: number;
+    onAddToCart: (productId: string) => void;
+}> = React.memo(function ProductsListComponent({ searchQuery, category, page, onAddToCart }) {
+    const router = useRouter();
+    const [products, setProducts] = useState<Product[]>([]);
+    const [pagination, setPagination] = useState<Pagination | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-        useEffect(() => {
-            const fetchProducts = async () => {
-                setLoading(true);
-                setError(null);
-                try {
-                    const url = new URL("/api/products", window.location.origin);
-                    if (category) url.searchParams.set("category", category);
-                    if (searchQuery) url.searchParams.set("search", searchQuery);
-                    url.searchParams.set("page", page.toString());
-                    url.searchParams.set("limit", "6");
+    useEffect(() => {
+        const fetchProducts = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const url = new URL("/api/products", window.location.origin);
+                if (category) url.searchParams.set("category", category);
+                if (searchQuery) url.searchParams.set("search", searchQuery);
+                url.searchParams.set("page", page.toString());
+                url.searchParams.set("limit", "6");
 
-                    const response = await fetch(url.toString());
-                    const data = await response.json();
+                const response = await fetch(url.toString());
+                const data = await response.json();
 
-                    if (data.success) {
-                        setProducts(data.products);
-                        setPagination(data.pagination);
-                    } else {
-                        setError(data.message || "Failed to fetch products");
-                    }
-
-                    router.push(
-                        `/products?page=${page}${category ? `&category=${category}` : ""}${
-                            searchQuery ? `&search=${searchQuery}` : ""
-                        }`,
-                        { scroll: false }
-                    );
-                } catch (err) {
-                    setError("An error occurred while fetching products");
-                    console.error(err);
-                } finally {
-                    setLoading(false);
+                if (data.success) {
+                    setProducts(data.products);
+                    setPagination(data.pagination);
+                } else {
+                    setError(data.message || "Failed to fetch products");
                 }
-            };
+            } catch (err) {
+                setError("An error occurred while fetching products");
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-            fetchProducts();
-        }, [searchQuery, category, page, router]);
+        fetchProducts();
+    }, [searchQuery, category, page]);
 
-        const handlePageChange = useCallback(
-            (newPage: number) => {
-                router.push(
-                    `/products?page=${newPage}${category ? `&category=${category}` : ""}${
-                        searchQuery ? `&search=${searchQuery}` : ""
-                    }`,
-                    { scroll: false }
-                );
-            },
-            [router, category, searchQuery]
-        );
+    const handlePageChange = useCallback(
+        (newPage: number) => {
+            const newUrl = `/products?page=${newPage}${category ? `&category=${category}` : ""}${
+                searchQuery ? `&search=${searchQuery}` : ""
+            }`;
+            router.replace(newUrl, { scroll: false });
+        },
+        [router, category, searchQuery]
+    );
 
-        const PaginationControls = useMemo(
-            () =>
-                pagination && pagination.totalPages > 1 ? (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, ease: "easeOut" }}
-                        viewport={{ once: true }}
-                        className="mt-12 flex justify-center gap-4"
+    const PaginationControls = useMemo(
+        () =>
+            pagination && pagination.totalPages > 1 ? (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    viewport={{ once: true }}
+                    className="mt-12 flex justify-center gap-4"
+                >
+                    <motion.button
+                        whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(255,165,0,0.5)" }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handlePageChange(page - 1)}
+                        disabled={page === 1}
+                        className="px-2 py-2 h-fit text-sm sm:px-6 sm:py-3 lg:text-lg bg-gradient-to-r from-red-600 to-orange-600 text-white sm:text-lg font-bold uppercase rounded-full disabled:bg-gray-600 hover:from-red-700 hover:to-orange-700 transition-all duration-300 shadow-[0_0_10px_rgba(255,0,0,0.3)]"
                     >
-                        <motion.button
-                            whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(255,165,0,0.5)" }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => handlePageChange(page - 1)}
-                            disabled={page === 1}
-                            className="px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 text-white text-lg font-bold uppercase rounded-full disabled:bg-gray-600 hover:from-red-700 hover:to-orange-700 transition-all duration-300 shadow-[0_0_10px_rgba(255,0,0,0.3)]"
-                        >
-                            Previous
-                        </motion.button>
-                        <span className="px-6 py-3 text-gray-200 text-lg font-semibold">
-                            Page {pagination.currentPage} of {pagination.totalPages}
-                        </span>
-                        <motion.button
-                            whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(255,165,0,0.5)" }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => handlePageChange(page + 1)}
-                            disabled={page === pagination.totalPages}
-                            className="px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 text-white text-lg font-bold uppercase rounded-full disabled:bg-gray-600 hover:from-red-700 hover:to-orange-700 transition-all duration-300 shadow-[0_0_10px_rgba(255,0,0,0.3)]"
-                        >
-                            Next
-                        </motion.button>
-                    </motion.div>
-                ) : null,
-            [pagination, page, handlePageChange]
+                        Previous
+                    </motion.button>
+                    <span className="sm:px-6 sm:py-3 py-2 text-gray-200 text-sm sm:text-lg font-semibold">
+                        Page {pagination.currentPage} of {pagination.totalPages}
+                    </span>
+                    <motion.button
+                        whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(255,165,0,0.5)" }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handlePageChange(page + 1)}
+                        disabled={page === pagination.totalPages}
+                        className="px-2 py-2 h-fit text-sm sm:px-6 sm:py-3 bg-gradient-to-r from-red-600 to-orange-600 text-white sm:text-lg font-bold uppercase rounded-full disabled:bg-gray-600 hover:from-red-700 hover:to-orange-700 transition-all duration-300 shadow-[0_0_10px_rgba(255,0,0,0.3)]"
+                    >
+                        Next
+                    </motion.button>
+                </motion.div>
+            ) : null,
+        [pagination, page, handlePageChange]
+    );
+
+    if (loading) return <Loading />;
+    if (error)
+        return (
+            <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="text-center text-red-500 text-xl font-semibold"
+            >
+                {error}
+            </motion.p>
         );
 
-        if (loading) return <Loading />;
-        if (error)
-            return (
+    return (
+        <>
+            {products.length === 0 ? (
                 <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5 }}
-                    className="text-center text-red-500 text-xl font-semibold"
+                    className="text-center text-gray-400 text-xl font-semibold"
                 >
-                    {error}
+                    No products found
                 </motion.p>
-            );
-
-        return (
-            <>
-                {products.length === 0 ? (
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.5 }}
-                        className="text-center text-gray-400 text-xl font-semibold"
-                    >
-                        No products found
-                    </motion.p>
-                ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-                        {products.map((product) => (
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                    {products.map((product) => (
+                        <motion.div
+                            key={product._id}
+                            initial={{ opacity: 0, y: 50 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, ease: "easeOut" }}
+                            viewport={{ once: true }}
+                            className="bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-red-900/50 p-6 rounded-3xl shadow-[0_0_15px_rgba(255,0,0,0.3)] hover:shadow-[0_0_25px_rgba(255,165,0,0.5)] transition-all duration-500 overflow-hidden relative group"
+                        >
                             <motion.div
-                                key={product._id}
-                                initial={{ opacity: 0, y: 50 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8, ease: "easeOut" }}
-                                viewport={{ once: true }}
-                                className="bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-red-900/50 p-6 rounded-3xl shadow-[0_0_15px_rgba(255,0,0,0.3)] hover:shadow-[0_0_25px_rgba(255,165,0,0.5)] transition-all duration-500 overflow-hidden relative group"
+                                whileHover={{ scale: 1.05, rotate: 1 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="relative w-full"
                             >
+                                <NextImage
+                                    src={product.image}
+                                    alt={product.name}
+                                    width={300}
+                                    height={300}
+                                    className="w-full h-64 object-cover object-center rounded-2xl shadow-[0_0_10px_rgba(0,0,0,0.7)]"
+                                />
                                 <motion.div
-                                    whileHover={{ scale: 1.05, rotate: 1 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="relative w-full"
-                                >
-                                    <NextImage
-                                        src={product.image}
-                                        alt={product.name}
-                                        width={300}
-                                        height={300}
-                                        className="w-full h-64 object-cover object-center rounded-2xl shadow-[0_0_10px_rgba(0,0,0,0.7)]"
-                                    />
-                                    <motion.div
-                                        className="absolute inset-0 bg-gradient-to-t from-red-600/20 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                                    />
-                                </motion.div>
-                                <h2 className="text-xl md:text-2xl font-extrabold text-white uppercase tracking-wide mt-4">
-                                    {product.name}
-                                </h2>
-                                <p className="text-orange-500 text-lg md:text-xl font-bold mt-2">
-                                    ${product.price.toFixed(2)}
-                                </p>
-                                <motion.button
-                                    whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(255,165,0,0.5)" }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => onAddToCart(product._id)}
-                                    className="mt-4 px-6 py-2 bg-gradient-to-r from-red-600 to-orange-600 text-white text-lg font-bold uppercase rounded-full hover:from-red-700 hover:to-orange-700 transition-all duration-300 shadow-[0_0_10px_rgba(255,0,0,0.3)] flex items-center justify-center gap-2 w-full"
-                                >
-                                    <FaShoppingCart size={18} />
-                                    Add to Cart
-                                </motion.button>
+                                    className="absolute inset-0 bg-gradient-to-t from-red-600/20 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                />
                             </motion.div>
-                        ))}
-                    </div>
-                )}
-                {PaginationControls}
-            </>
-        );
-    }
-);
+                            <h2 className="text-xl md:text-2xl font-extrabold text-white uppercase tracking-wide mt-4">
+                                {product.name}
+                            </h2>
+                            <p className="text-orange-500 text-lg md:text-xl font-bold mt-2">
+                                ${product.price.toFixed(2)}
+                            </p>
+                            <motion.button
+                                whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(255,165,0,0.5)" }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => onAddToCart(product._id)}
+                                className="mt-4 px-6 py-2 bg-gradient-to-r from-red-600 to-orange-600 text-white text-lg font-bold uppercase rounded-full hover:from-red-700 hover:to-orange-700 transition-all duration-300 shadow-[0_0_10px_rgba(255,0,0,0.3)] flex items-center justify-center gap-2 w-full"
+                            >
+                                <FaShoppingCart size={18} />
+                                Add to Cart
+                            </motion.button>
+                        </motion.div>
+                    ))}
+                </div>
+            )}
+            {PaginationControls}
+        </>
+    );
+});
 
 const ProductsPage = () => {
     const { data: session, status } = useSession();
@@ -217,19 +230,38 @@ const ProductsPage = () => {
     const [searchInput, setSearchInput] = useState<string>("");
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>("");
     const [selectedCategory, setSelectedCategory] = useState<string>("");
-    const [cartItems, setCartItems] = useState<CartItem[]>([]); // Initialize as empty array
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [cartLoading, setCartLoading] = useState(true);
     const [isMounted, setIsMounted] = useState(false);
 
     const page = parseInt(searchParams.get("page") || "1", 10);
 
+    // Log component mount to debug re-mounting
     useEffect(() => {
+        console.log("ProductsPage mounted");
         setIsMounted(true);
         setSearchInput(searchParams.get("search") || "");
         setDebouncedSearchQuery(searchParams.get("search") || "");
         setSelectedCategory(searchParams.get("category") || "");
+        return () => console.log("ProductsPage unmounted");
     }, [searchParams]);
+
+    // Debounced search handler with router.replace
+    const debouncedSetSearchQuery = useMemo(
+        () =>
+            debounce((value:string) => {
+                console.log("Debounced search query set:", value);
+                setDebouncedSearchQuery(value);
+                const newUrl = `/products?page=${page}${selectedCategory ? `&category=${selectedCategory}` : ""}${
+                    value ? `&search=${value}` : ""
+                }`;
+                if (window.location.pathname + window.location.search !== newUrl) {
+                    router.replace(newUrl, { scroll: false });
+                }
+            }, 500),
+        [router, page, selectedCategory]
+    );
 
     useEffect(() => {
         if (!isMounted || status === "loading" || !session?.user?.id) return;
@@ -240,7 +272,7 @@ const ProductsPage = () => {
                 const response = await axios.get("/api/cart");
                 if (response.data.success) {
                     setCartItems(
-                        response.data.cart?.items?.map((item: any) => ({
+                        response.data.cart?.items?.map((item: CartItem ) => ({
                             _id: item.product._id,
                             name: item.product.name,
                             image: item.product.image,
@@ -253,7 +285,7 @@ const ProductsPage = () => {
                 }
             } catch (error) {
                 console.error("Error fetching cart:", error);
-                setCartItems([]); // Fallback to empty array on error
+                setCartItems([]);
             } finally {
                 setCartLoading(false);
             }
@@ -261,22 +293,31 @@ const ProductsPage = () => {
         fetchCart();
     }, [session, status, isMounted]);
 
-    const debouncedSetSearchQuery = useCallback(
-        debounce((value: string) => {
-            setDebouncedSearchQuery(value);
-        }, 300),
-        []
+    const handleSearchChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            const value = e.target.value;
+            console.log("Search input changed:", value);
+            setSearchInput(value);
+            debouncedSetSearchQuery(value);
+        },
+        [debouncedSetSearchQuery]
     );
 
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setSearchInput(value);
-        debouncedSetSearchQuery(value);
-    };
-
-    const handleCategoryChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-        setSelectedCategory(e.target.value);
+    const handleSearchSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault(); // Prevent form submission
     }, []);
+
+    const handleCategoryChange = useCallback(
+        (e: React.ChangeEvent<HTMLSelectElement>) => {
+            const value = e.target.value;
+            setSelectedCategory(value);
+            const newUrl = `/products?page=1${value ? `&category=${value}` : ""}${
+                debouncedSearchQuery ? `&search=${debouncedSearchQuery}` : ""
+            }`;
+            router.replace(newUrl, { scroll: false });
+        },
+        [router, debouncedSearchQuery]
+    );
 
     const handleAddToCart = async (productId: string) => {
         if (!session?.user?.id) {
@@ -288,7 +329,7 @@ const ProductsPage = () => {
             const response = await axios.post("/api/cart/add", { productId, quantity: 1 });
             if (response.data.success) {
                 setCartItems(
-                    response.data.cart.items.map((item: any) => ({
+                    response.data.cart.items.map((item: CartItem) => ({
                         _id: item.product._id,
                         name: item.product.name,
                         image: item.product.image,
@@ -310,7 +351,7 @@ const ProductsPage = () => {
             const response = await axios.put("/api/cart/update", { productId, quantity });
             if (response.data.success) {
                 setCartItems(
-                    response.data.cart.items.map((item: any) => ({
+                    response.data.cart.items.map((item: CartItem) => ({
                         _id: item.product._id,
                         name: item.product.name,
                         image: item.product.image,
@@ -361,19 +402,21 @@ const ProductsPage = () => {
                 viewport={{ once: true }}
                 className="mb-10 flex flex-col sm:flex-row justify-center gap-6"
             >
-                <motion.input
-                    type="text"
-                    value={searchInput}
-                    onChange={handleSearchChange}
-                    placeholder="Search products..."
-                    whileHover={{ scale: 1.02, borderColor: "#f97316" }}
-                    className="p-3 rounded-xl border-2 border-gray-700 bg-gray-800 text-white w-full sm:w-72 focus:outline-none focus:border-orange-500 transition-all duration-300 shadow-[0_0_5px_rgba(255,0,0,0.2)]"
-                />
+                <form onSubmit={handleSearchSubmit} className="w-full sm:w-auto">
+                    <motion.input
+                        type="text"
+                        value={searchInput}
+                        onChange={handleSearchChange}
+                        placeholder="Search products..."
+                        whileHover={{ scale: 1.02, borderColor: "#f97316" }}
+                        className="p-3 rounded-xl border-2 border-gray-700 bg-gray-800 text-white w-full sm:w-72 focus:outline-none focus:border-orange-500 transition-all duration-300 shadow-[0_0_5px_rgba(255,0,0,0.2)]"
+                    />
+                </form>
                 <motion.select
                     value={selectedCategory}
                     onChange={handleCategoryChange}
                     whileHover={{ scale: 1.02, borderColor: "#f97316" }}
-                    className="p-3 rounded-xl border-2 border-gray-700 bg-gray-800 text-white w-full sm:w-72 focus:outline-none focus:border-orange-500 transition-all duration-300 shadow-[0_0_5px_rgba(255,0,0,0.2)]"
+                    className="p-3 rounded-xl border-2 border-gray-700 bg-gray-800 text-white w-fit sm:w-72 focus:outline-none focus:border-orange-500 transition-all duration-300 shadow-[0_0_5px_rgba(255,0,0,0.2)]"
                 >
                     <option value="">All Categories</option>
                     <option value="bulk">Bulk</option>
@@ -390,12 +433,18 @@ const ProductsPage = () => {
                         className="px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 text-white text-lg font-bold uppercase rounded-full hover:from-red-700 hover:to-orange-700 transition-all duration-300 shadow-[0_0_10px_rgba(255,0,0,0.3)] flex items-center gap-2"
                     >
                         <FaShoppingCart size={18} />
-                        Cart ({cartLoading ? "..." : cartItems.length === 0 ? 0 : cartItems.reduce((sum, item) => sum + item.quantity, 0)})
+                        Cart (
+                        {cartLoading
+                            ? "..."
+                            : cartItems.length === 0
+                            ? 0
+                            : cartItems.reduce((sum, item) => sum + item.quantity, 0)}
+                        )
                     </motion.button>
                 )}
             </motion.div>
         ),
-        [searchInput, handleSearchChange, selectedCategory, handleCategoryChange, cartItems, cartLoading, isMounted]
+        [searchInput, handleSearchChange, handleSearchSubmit, selectedCategory, handleCategoryChange, cartItems, cartLoading, isMounted]
     );
 
     if (!isMounted || status === "loading") return <Loading />;
@@ -425,7 +474,7 @@ const ProductsPage = () => {
                     />
                     {isCartOpen && !cartLoading && (
                         <CartModal
-                            cartItems={cartItems || []} 
+                            cartItems={cartItems || []}
                             onClose={() => setIsCartOpen(false)}
                             onUpdateQuantity={handleUpdateQuantity}
                             onCheckout={handleCheckout}

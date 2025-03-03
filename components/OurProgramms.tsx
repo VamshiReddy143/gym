@@ -9,6 +9,7 @@ import bodybalancing from "@/public/balancing.png";
 import body from "@/public/body.png";
 import yoga from "@/public/yoga.png";
 import beginner from "@/public/beginner.png";
+import Link from "next/link";
 
 const OurProgramms = () => {
     return (
@@ -19,6 +20,8 @@ const OurProgramms = () => {
 
             <div className="max-w-10xl mx-auto">
                 {/* Header */}
+
+               
                 <motion.div
                     initial={{ opacity: 0, y: -50 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -42,8 +45,9 @@ const OurProgramms = () => {
                 </motion.div>
 
                 {/* Programs Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                <div className="grid grid-cols-1 cursor-pointer sm:grid-cols-2 lg:grid-cols-3 gap-10">
                     {/* Program 1: Cardio Strength */}
+                    <Link href={"/plans"}>
                     <motion.div
                         initial={{ opacity: 0, y: 50 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -71,8 +75,10 @@ const OurProgramms = () => {
                             Boost your heart rate and build unbreakable endurance with high-intensity cardio.
                         </p>
                     </motion.div>
+                    </Link>
 
                     {/* Program 2: Weight Lifting */}
+                    <Link href={"/plans"}>
                     <motion.div
                         initial={{ opacity: 0, y: 50 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -100,8 +106,10 @@ const OurProgramms = () => {
                             Forge raw power and sculpt your physique with heavy iron.
                         </p>
                     </motion.div>
+                    </Link>
 
                     {/* Program 3: Body Balancing */}
+                    <Link href={"/plans"}>
                     <motion.div
                         initial={{ opacity: 0, y: 50 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -129,8 +137,10 @@ const OurProgramms = () => {
                             Master stability and coordination for peak performance.
                         </p>
                     </motion.div>
+                    </Link>
 
                     {/* Program 4: Muscle Stretching */}
+                    <Link href={"/plans"}>
                     <motion.div
                         initial={{ opacity: 0, y: 50 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -158,8 +168,10 @@ const OurProgramms = () => {
                             Enhance flexibility and recovery with targeted stretches.
                         </p>
                     </motion.div>
+                    </Link>
 
                     {/* Program 5: Basic Yoga */}
+                    <Link href={"/plans"}>
                     <motion.div
                         initial={{ opacity: 0, y: 50 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -187,8 +199,10 @@ const OurProgramms = () => {
                             Find balance and inner strength through mindful movement.
                         </p>
                     </motion.div>
+                    </Link>
 
                     {/* Program 6: Beginner Pilates */}
+                    <Link href={"/plans"}>
                     <motion.div
                         initial={{ opacity: 0, y: 50 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -216,6 +230,7 @@ const OurProgramms = () => {
                             Strengthen your core and kickstart your fitness journey.
                         </p>
                     </motion.div>
+                    </Link>
                 </div>
             </div>
         </div>

@@ -10,7 +10,7 @@ import gymlogo from "@/public/gymlogo.jpg";
 import Gymmy from "./Gymmy";
 import AddButton from "./AddButton";
 import { DropdownMenuDemo } from "./DropdownMenu";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import placeholder from "@/public/placeholder.png";
 
 
@@ -220,7 +220,7 @@ const Navbar: React.FC = () => {
                         <motion.button
                             whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(255,165,0,0.6)" }}
                             whileTap={{ scale: 0.95 }}
-                            onClick={() => signOut()}
+                            onClick={()=>signOut()}
                             className="hidden sm:flex items-center gap-2 bg-red-600 text-white px-3 py-1 md:px-4 md:py-1 lg:px-6 lg:py-2 rounded-full hover:bg-orange-600 transition-all duration-300 text-sm md:text-base lg:text-lg font-extrabold uppercase tracking-wide shadow-[0_0_10px_rgba(255,0,0,0.4)]"
                         >
                             <FaSignOutAlt /> 
@@ -238,23 +238,28 @@ const Navbar: React.FC = () => {
                     )}
                     {/* Mobile Login/Logout Icon */}
                     {status === "authenticated" ? (
+                       
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            onClick={() => signOut()}
+                            onClick={()=>signOut()}
+                           
                             className="sm:hidden text-gray-300 hover:text-orange-500 transition-colors duration-300"
                         >
                             <FaSignOutAlt size={20} />
                         </motion.button>
+                       
+                       
                     ) : (
+                        <Link href={"/sign-in"}>
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            onClick={() => signIn()}
                             className="sm:hidden text-gray-300 hover:text-orange-500 transition-colors duration-300"
                         >
                             <FaSignInAlt size={20} />
                         </motion.button>
+                        </Link>
                     )}
                     <motion.button
                         whileHover={{ scale: 1.1 }}

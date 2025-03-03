@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Order from "@/models/Order";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/auth/authOptions";
+import "@/models/Product";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     await dbConnect();
     const session = await getServerSession(authOptions);
 

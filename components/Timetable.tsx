@@ -84,19 +84,17 @@ const Timetable = () => {
                 <td className="p-4 text-red-500 font-semibold sticky left-0 bg-gray-900/80 backdrop-blur-sm">
                   {row.time}
                 </td>
-                
+
                 {Object.keys(row).slice(1).map((day, i) => (
                   <td key={i} className="p-4 text-center">
                     <motion.div
-                      whileHover={{ scale: 1.05, boxShadow: "0 0 10px rgba(255,0,0,0.4)" }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                      className={`py-2 px-4 rounded-xl transition-all duration-300 ${
-                        row[day] === "Rest"
+                      
+                      className={`py-2 px-4 rounded-xl transition-all duration-300 ${row[day as keyof typeof row] === "Rest"
                           ? "bg-gray-700/50 text-gray-500"
                           : "bg-gradient-to-r from-red-600/20 to-red-800/20 text-white hover:bg-gradient-to-r hover:from-red-600 hover:to-red-800 hover:text-black"
-                      }`}
+                        }`}
                     >
-                      {row[day] || "-"}
+                      {row[day as keyof typeof row] || "-"}
                     </motion.div>
                   </td>
                 ))}
@@ -105,7 +103,7 @@ const Timetable = () => {
           </tbody>
         </table>
       </div>
-           
+
     </div>
   );
 };

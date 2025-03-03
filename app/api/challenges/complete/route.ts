@@ -5,9 +5,10 @@ import dbConnect from "@/lib/mongodb";
 
 const AWARD_THRESHOLDS = [
     { streak: 1, award: "/newbie.png" },
-    { streak: 5, award: "/bronze1.png" },
-    { streak: 20, award: "/silver1.png" },
-    { streak: 50, award: "/gold1.png" },
+    { streak: 5, award: "/Award1.png" },
+    { streak: 20, award: "/Award2.png" },
+    { streak: 50, award: "/Award4.png" },
+    { streak: 100, award: "/Award3.png" },
    
 ];
 
@@ -57,6 +58,6 @@ export async function POST(req: Request) {
         await user.save();
         return NextResponse.json({ success: true, user });
     } catch (error) {
-        return NextResponse.json({ error: "Server error", details: error.message }, { status: 500 });
+        return NextResponse.json({ error: "Server error", details: error }, { status: 500 });
     }
 }

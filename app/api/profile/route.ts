@@ -5,6 +5,16 @@ import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import User from "@/models/User";
 
+interface UserData{
+    name: string;
+    email: string;
+    image: string;
+    phonenumber: number;
+    Address: string;
+    gender: string;
+    location: string;
+}
+
 
 
 export async function GET() {
@@ -53,7 +63,8 @@ export async function GET() {
                 points: user.points,       
                 awards:user.awards,
                 createdAt: user.createdAt,
-                completedChallenges:user.completedChallenges
+                completedChallenges:user.completedChallenges,
+                isAdmin:user.isAdmin
             },
         });
     } catch (error) {
@@ -97,7 +108,7 @@ export async function PUT(request: NextRequest) {
         const { name, location, gender, email, phonenumber, image } = body;
 
         // Prepare update object with only provided fields
-        const updateData: any = {};
+        const updateData:Partial<UserData>= {};
         if (name !== undefined) updateData.name = name;
         if (location !== undefined) updateData.Address = location; // Note: Changing 'location' to 'Address' to match your GET route
         if (gender !== undefined) updateData.gender = gender;

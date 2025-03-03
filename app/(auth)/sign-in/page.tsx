@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Mail, Lock } from "lucide-react";
@@ -179,7 +179,7 @@ const SignIn = () => {
                     onClick={handleGoogleSignIn}
                     whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(255,255,255,0.3)" }}
                     whileTap={{ scale: 0.95 }}
-                    className="flex items-center justify-center gap-3 px-8 py-3 bg-white text-black text-lg font-extrabold uppercase rounded-full hover:bg-gray-200 transition-all duration-300 shadow-[0_0_10px_rgba(255,255,255,0.2)]"
+                    className="flex items-center justify-center gap-3 px-8 py-3 bg-white text-black text-sm font-extrabold uppercase rounded-full hover:bg-gray-200 transition-all duration-300 shadow-[0_0_10px_rgba(255,255,255,0.2)]"
                 >
                     <Image src={googleicon} width={24} height={24} alt="Google" />
                     Sign In with Google

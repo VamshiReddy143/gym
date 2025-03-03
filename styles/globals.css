@@ -121,6 +121,7 @@
 }
 
 
+
 body{
   overflow-x: hidden;
   background-color: black;
@@ -141,5 +142,114 @@ html {
   -ms-overflow-style: none; /* IE and Edge */
 }
 
+:root {
+  /* Default Dark Theme */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #ffffff;
+  --accent: #f97316;
+}
+
+/* Base Styles */
+:root {
+  --bg-primary: #000000;
+  --bg-secondary: #1a1a1a;
+  --text-primary: #f0f0f0;
+  --accent: #ff4500;
+}
+
+/* Dark (Subtle Futuristic) */
+[data-theme="dark"] {
+  --bg-primary: #0d0d0d;
+  --bg-secondary: #1a1a1a;
+  --text-primary: #e0e0e0;
+  --accent: #ff4500; /* Neon Orange */
+}
+
+/* Light (Clean and Vibrant) */
+[data-theme="light"] {
+  --bg-primary: #e8ecef;
+  --bg-secondary: #d1d8e0;
+  --text-primary: #2d3748;
+  --accent: #00b4d8; /* Cyan */
+}
+
+/* Gym (Fitness-Inspired Neon) */
+[data-theme="gym"] {
+  --bg-primary: #1c2526;
+  --bg-secondary: #2e3839;
+  --text-primary: #e0f2f1;
+  --accent: #00cc99; /* Bright Teal */
+}
+
+/* Blue (Cool Tech) */
+[data-theme="blue"] {
+  --bg-primary: #0a192f;
+  --bg-secondary: #112d4e;
+  --text-primary: #dbe2ef;
+  --accent: #3f72af; /* Deep Blue */
+}
+
+/* Forest (Natural Futuristic) */
+[data-theme="forest"] {
+  --bg-primary: #1b2a2a;
+  --bg-secondary: #2e4a4a;
+  --text-primary: #cce5e4;
+  --accent: #66bb6a; /* Forest Green */
+}
+
+/* Pastel (Soft Neon) */
+[data-theme="pastel"] {
+  --bg-primary: #2d2a38;
+  --bg-secondary: #403c54;
+  --text-primary: #e2dcdc;
+  --accent: #ff9999; /* Soft Pink */
+}
+
+/* Neon (Classic Cyberpunk) */
+[data-theme="neon"] {
+  --bg-primary: #0f0f0f;
+  --bg-secondary: #1a1a25;
+  --text-primary: #f0f0f5;
+  --accent: #ff00ff; /* Neon Magenta */
+}
+
+/* Cyberpunk (High-Tech Neon) */
+[data-theme="cyberpunk"] {
+  --bg-primary: #0d1b2a;
+  --bg-secondary: #1b263b;
+  --text-primary: #e0e7ff;
+  --accent: #00ffcc; /* Neon Cyan */
+}
+
+/* Solar (Warm Futuristic) */
+[data-theme="solar"] {
+  --bg-primary: #2d1b00;
+  --bg-secondary: #4a2e00;
+  --text-primary: #ffebcc;
+  --accent: #ff9500; /* Solar Orange */
+}
+
+/* Midnight (Deep Cosmic) */
+[data-theme="midnight"] {
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #141a2f;
+  --text-primary: #d6dfff;
+  --accent: #8a4af3; /* Cosmic Purple */
+}
+
+
+
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.bg-primary { background-color: var(--bg-primary); }
+.bg-secondary { background-color: var(--bg-secondary); }
+.text-primary { color: var(--text-primary); }
+.accent { color: var(--accent); }
+.accent-bg { background-color: var(--accent); }
 
 

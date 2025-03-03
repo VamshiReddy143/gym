@@ -145,7 +145,7 @@ const BMICalculatorPage = () => {
                             />
                         </motion.div>
                         <motion.div variants={inputVariants} whileHover="hover" whileFocus="focus">
-                            <label className="block text-sm font-semibold text-gray-300 mb-2 flex items-center gap-2">
+                            <label className="text-sm font-semibold text-gray-300 mb-2 flex items-center gap-2">
                                 <FaChartBar className="text-orange-500" /> Age
                             </label>
                             <input
@@ -157,7 +157,7 @@ const BMICalculatorPage = () => {
                             />
                         </motion.div>
                         <motion.div variants={inputVariants} whileHover="hover" whileFocus="focus">
-                            <label className="block text-sm font-semibold text-gray-300 mb-2 flex items-center gap-2">
+                            <label className="text-sm font-semibold text-gray-300 mb-2 flex items-center gap-2">
                                 <FaHeartbeat className="text-orange-500" /> Gender
                             </label>
                             <select

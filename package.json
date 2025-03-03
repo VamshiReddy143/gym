@@ -2,11 +2,13 @@
   "name": "gym",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev ",
+    "socket": "ts-node --transpile-only server.js",
+    "start": "concurrently \"npm run dev\" \"npm run socket\"",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start:prod": "next start"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -21,8 +23,12 @@
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "concurrently": "^9.1.2",
     "crypto": "^1.0.1",
-    "firebase": "^11.3.1",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
+    "emoji-picker-react": "^4.12.0",
+    "express": "^4.21.2",
     "framer-motion": "^12.4.7",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.475.0",
@@ -39,9 +45,9 @@
     "react-hook-form": "^7.54.2",
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
-    "react-parallax": "^3.5.1",
-    "react-tilt": "^1.0.2",
     "react-use": "^17.6.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "stripe": "^17.6.0",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
@@ -50,15 +56,17 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@types/node": "^20",
+    "@types/express": "^5.0.0",
+    "@types/node": "^20.17.19",
     "@types/nodemailer": "^6.4.17",
     "@types/qrcode": "^1.5.5",
-    "@types/react": "^19",
+    "@types/react": "^19.0.10",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
     "postcss": "^8",
     "tailwindcss": "^3.4.17",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

@@ -1,51 +1,86 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
 import Order from "@/models/Order";
-// import { getServerSession } from "next-auth";
-// import { authOptions } from "@/app/auth/authOptions";
-import Product from "@/models/Product";
-import mongoose, { Schema } from "mongoose";
 
-const ProductSchema = new Schema({
-    name: { type: String, required: true },
-    image: { type: String, required: true },
-    price: { type: Number, required: true },
-    description: { type: String, required: true },
-    category: { type: String, required: true, enum: ['bulk', 'cut', 'items', 'supplements', 'accessories'] },
-  }, { timestamps: true });
+
+// import mongoose, { Schema } from "mongoose";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/auth/authOptions";
+import "@/models/Product";
+
+// const ProductSchema = new Schema({
+//     name: { type: String, required: true },
+//     image: { type: String, required: true },
+//     price: { type: Number, required: true },
+//     description: { type: String, required: true },
+//     category: { type: String, required: true, enum: ['bulk', 'cut', 'items', 'supplements', 'accessories'] },
+//   }, { timestamps: true });
   
-  // Register Product model
-  mongoose.models.Product || mongoose.model("Product", ProductSchema);
+//   const Product = mongoose.models.Product || mongoose.model("Product", ProductSchema);
+//   export default Product;
+  
 
-export async function GET(request: NextRequest) {
+
+  interface Product {
+    _id: string;
+    name: string;
+    image: string;
+    price: number;
+    description: string;
+    category: "bulk" | "cut" | "items" | "supplements" | "accessories";
+}
+
+// Define the OrderItem interface (for populated items in Order)
+interface OrderItem {
+    product: Product;
+    quantity: number;
+}
+
+// Define the Order interface
+interface OrderType {
+    _id: string;
+    items: OrderItem[];
+    total: number;
+    status: string;
+}
+
+
+
+
+export async function GET() {
     await dbConnect();
     // const session = await getServerSession(authOptions);
 
-    // if (!session || !session.user?.id || !session.user.isAdmin) {
-    //     return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
-    // }
-
+   const session = await getServerSession(authOptions);
+    if (!session || !session.user?.id || !session.user.isAdmin) {
+        return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+    }
     try {
         // Fetch total users
         const totalUsers = await User.countDocuments();
+        
 
         // Fetch all orders to calculate products sold and revenue
-        const orders = await Order.find({ status: { $in: ["shipped", "delivered"] } }).populate("items.product");
-        const productsSold = orders.reduce((sum: number, order: any) => {
-            return sum + order.items.reduce((itemSum: number, item: any) => itemSum + item.quantity, 0);
+        const orders = await Order.find({ status: { $in: ["shipped", "delivered"] } }).populate({
+            path: "items.product",
+            model: "Product",
+        });
+        const productsSold = orders.reduce((sum: number, order: OrderType) => {
+            return sum + order.items.reduce((itemSum: number, item: OrderItem) => itemSum + item.quantity, 0);
         }, 0);
-        const totalRevenue = orders.reduce((sum: number, order: any) => sum + order.total, 0);
+        const totalRevenue = orders.reduce((sum: number, order: OrderType) => sum + order.total, 0);
 
         // Fetch all users with role and image
         const users = await User.find({}, "name email role image subscription").lean();
-        console.log(users)
+       
 
         return NextResponse.json({
             success: true,
             totalUsers,
             productsSold,
             totalRevenue,
+          
             users,
         });
     } catch (error) {

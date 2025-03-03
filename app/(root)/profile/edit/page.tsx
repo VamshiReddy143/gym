@@ -3,7 +3,7 @@
 import { useUserId } from '@/app/hooks/useUserId';
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
-import { CldUploadWidget } from 'next-cloudinary';
+import { CldUploadWidget, type CloudinaryUploadWidgetResults } from 'next-cloudinary';
 
 const EditProfilePage = () => {
     const userId = useUserId();
@@ -69,10 +69,11 @@ const EditProfilePage = () => {
         }
     };
 
-    const handleImageUpload = (result: any) => {
-        console.log("Full Cloudinary result:", result);
-        if (result.event === "success" && result.info && result.info.secure_url) {
-            const newImageUrl = result.info.secure_url;
+    const handleImageUpload = (results: CloudinaryUploadWidgetResults) => {
+        console.log("Full Cloudinary result:", results);
+        // Check if it's a success event with info
+        if (results.event === "success" && results.info && typeof results.info === "object" && "secure_url" in results.info) {
+            const newImageUrl = results.info.secure_url as string;
             console.log("New image URL:", newImageUrl);
             setUserData(prev => {
                 const updatedData = { ...prev, image: newImageUrl };
@@ -81,7 +82,7 @@ const EditProfilePage = () => {
             });
             setUploadError(null);
         } else {
-            console.error("Upload failed or no secure_url:", result);
+            console.error("Upload failed or no secure_url:", results);
             setUploadError("Failed to upload image. Please try again.");
         }
     };
@@ -97,18 +98,18 @@ const EditProfilePage = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="flex justify-center">
                     <CldUploadWidget
-                        uploadPreset="gym_website" // Replace with your actual preset
+                        uploadPreset="gym_website"
                         onSuccess={handleImageUpload}
                         onError={(error) => {
                             console.error("Cloudinary upload error:", error);
-                            setUploadError("Upload error: " + error?.message);
+                            setUploadError("Upload error: " + (error || "Unknown error"));
                         }}
                         options={{
                             maxFiles: 1,
                             resourceType: "image",
                             clientAllowedFormats: ["png", "jpg", "jpeg"],
                             maxFileSize: 5000000,
-                            folder: "profile_pictures" // Optional: organize uploads
+                            folder: "profile_pictures"
                         }}
                     >
                         {({ open }) => (

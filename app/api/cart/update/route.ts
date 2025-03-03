@@ -4,6 +4,11 @@ import Cart from "@/models/Cart";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/auth/authOptions";
 
+interface CartItem {
+    product: string;
+    quantity: number;   
+}
+
 export async function PUT(request: NextRequest) {
     await dbConnect();
     const session = await getServerSession(authOptions);
@@ -20,7 +25,7 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ success: false, message: "Cart not found" }, { status: 404 });
         }
 
-        const itemIndex = cart.items.findIndex((item: any) => item.product.toString() === productId);
+        const itemIndex = cart.items.findIndex((item:CartItem) => item.product.toString() === productId);
         if (itemIndex > -1) {
             if (quantity <= 0) {
                 cart.items.splice(itemIndex, 1);

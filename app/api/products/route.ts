@@ -2,8 +2,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Product from '@/models/Product';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/auth/authOptions';
+
+interface Query {
+    category?: string;
+    name?: { $regex: string; $options: string };
+  }
 
 export async function GET(request: NextRequest) {
     try {
@@ -16,7 +19,7 @@ export async function GET(request: NextRequest) {
         const limit = parseInt(url.searchParams.get('limit') || '6', 10);
 
         // Build query
-        const query: any = {};
+        const query: Query = {};
         if (category) query.category = category;
         if (search) query.name = { $regex: search, $options: 'i' }; // Case-insensitive search
 
@@ -42,7 +45,7 @@ export async function GET(request: NextRequest) {
     } catch (error) {
         console.error('Error fetching products:', error);
         return NextResponse.json(
-            { success: false, message: 'Failed to fetch products', error: error.message },
+            { success: false, message: 'Failed to fetch products', error: error },
             { status: 500 }
         );
     }
@@ -72,7 +75,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         console.error('Error creating product:', error);
         return NextResponse.json(
-            { success: false, message: 'Failed to create product', error: error.message },
+            { success: false, message: 'Failed to create product', error: error},
             { status: 500 }
         );
     }
