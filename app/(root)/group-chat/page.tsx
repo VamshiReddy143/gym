@@ -398,7 +398,7 @@ const GroupChatPage: React.FC = () => {
     };
     fetchMessages();
 
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000";
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000"
     const newSocket = io(socketUrl, {
       path: "/socket.io",
       transports: ["websocket"],

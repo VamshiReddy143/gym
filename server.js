@@ -17,7 +17,7 @@ const avatarImages = [
 
 const getRandomAvatar = () => {
   const randomIndex = Math.floor(Math.random() * avatarImages.length);
-  return avatarImages[randomIndex] || "/default-avatar.png";
+  return avatarImages[randomIndex] || "/placeholder.png";
 };
 
 const app = express();

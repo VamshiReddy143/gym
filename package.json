@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "next dev ",
     "socket": "ts-node --transpile-only server.js",
-    "start": "concurrently \"npm run dev\" \"npm run socket\"",
+    "start": "node server.js",
     "build": "next build",
-    "start:prod": "next start"
+    "start:prod": "concurrently \"next start\" \"node server.js\""
+
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
