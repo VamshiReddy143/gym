@@ -54,7 +54,7 @@ export async function GET() {
 
    const session = await getServerSession(authOptions);
     if (!session || !session.user?.id || !session.user.isAdmin) {
-        return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+        return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 200 });
     }
     try {
         // Fetch total users

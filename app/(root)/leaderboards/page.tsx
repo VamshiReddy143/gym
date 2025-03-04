@@ -181,7 +181,7 @@ const LeaderboardPage: React.FC = () => {
                     {index + 4}
                   </motion.span>
                   <Image
-                    src={user.image || "/default-avatar.png"}
+                    src={user.image || "/placeholder.png"}
                     alt={`${user.name}'s avatar`}
                     width={40}
                     height={40}

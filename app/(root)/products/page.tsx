@@ -9,6 +9,7 @@ import { FaShoppingCart } from "react-icons/fa";
 import dynamic from "next/dynamic";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import toast, { Toaster } from "react-hot-toast";
 
 const CartModal = dynamic(() => import("./CartModal"), { ssr: false });
 
@@ -321,7 +322,7 @@ const ProductsPage = () => {
 
     const handleAddToCart = async (productId: string) => {
         if (!session?.user?.id) {
-            alert("Please log in to add items to your cart.");
+            toast.error("Please sign in to add items to your cart");
             return;
         }
 
@@ -482,6 +483,7 @@ const ProductsPage = () => {
                     )}
                 </Suspense>
             </div>
+            <Toaster/>
         </div>
     );
 };

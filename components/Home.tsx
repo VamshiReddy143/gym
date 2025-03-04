@@ -175,7 +175,7 @@ const Home: React.FC = () => {
                 alt="Hero image showcasing gym strength training"
                 width={800}
                 height={800}
-                className="max-w-full h-[30rem] z-[999] sm:h-[35rem] lg:h-[50rem] object-cover rounded-xl hover:scale-105 transition-all duration-500 cursor-pointer"
+                className="max-w-full  h-[35rem] z-[999] sm:h-[35rem] lg:h-[50rem] object-cover rounded-xl hover:scale-105 transition-all duration-500 cursor-pointer"
                 loading="lazy"
               />
               <motion.div

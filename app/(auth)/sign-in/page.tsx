@@ -1,6 +1,5 @@
 "use client";
 
-
 import Link from "next/link";
 import Image from "next/image";
 import { Mail, Lock } from "lucide-react";
@@ -34,31 +33,30 @@ const SignIn = () => {
 
     const onSubmit: SubmitHandler<LoginFormData> = async (data) => {
         try {
-            const response = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                toast.error(result.error || "Invalid credentials");
-            }
-
-            await signIn("credentials", {
+            // Attempt to sign in with NextAuth
+            const result = await signIn("credentials", {
                 email: data.email,
                 password: data.password,
-                redirect: false,
+                redirect: false, // Prevent automatic redirection
             });
 
+            if (result?.error) {
+                // Handle specific error cases from NextAuth
+                if (result.error === "CredentialsSignin") {
+                    toast.error("Invalid email or password");
+                } else {
+                    toast.error(result.error || "Login failed. Please try again.");
+                }
+                return; // Stop here, don’t redirect
+            }
+
+            // If successful, show success message and redirect
             toast.success("Login successful!");
             router.push("/");
-        } catch {
+        } catch (error) {
             toast.dismiss();
             toast.error("Something went wrong. Please try again.");
+            console.error("Login error:", error);
         }
     };
 
@@ -201,7 +199,7 @@ const SignIn = () => {
                             Register
                         </motion.button>
                     </Link>
-                    <Link href="/forgot-password">
+                    {/* <Link href="/forgot-password">
                         <motion.button
                             whileHover={{ scale: 1.05, boxShadow: "0 0 10px rgba(255,165,0,0.4)" }}
                             whileTap={{ scale: 0.95 }}
@@ -209,7 +207,7 @@ const SignIn = () => {
                         >
                             Forgot Password?
                         </motion.button>
-                    </Link>
+                    </Link> */}
                 </motion.div>
             </motion.form>
             <Toaster />

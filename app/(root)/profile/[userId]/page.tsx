@@ -22,7 +22,7 @@ interface IUser {
   role: "admin" | "user" | "trainer";
   gender?: string;
   subscription?: {
-    planName: string;
+    plan: string;
     startDate: string;
     endDate: string;
     price: number;
@@ -33,6 +33,7 @@ interface IUser {
   lastChallengeDate: string | null;
   completedChallenges: string[];
   awards: string[];
+  createdAt:Date
 }
 
 // Animation Variants
@@ -188,12 +189,17 @@ const ProfilePage: React.FC = () => {
               >
                 {user.name}
               </motion.h2>
+              <p className="text-lg sm:text-xl md:text-2xl text-gray-400 mt-2 sm:mt-3  font-semibold">
+                Forging Greatness Since {new Date(user.createdAt).getFullYear()} {new Date(user.createdAt).toLocaleString("en-US", { month: "long" })}
+              </p>
               <motion.p
                 variants={ANIMATION_VARIANTS.item}
-                className="text-lg sm:text-xl md:text-2xl text-gray-200 mt-2 font-medium capitalize"
+                className="text-lg sm:text-xl md:text-2xl text-gray-900 mt-2 font-medium bg-green-300 w-fit  py-1 px-6 rounded-xl capitalize"
               >
                 {user.role}
               </motion.p>
+
+             
               {user.awards.length > 0 && (
                 <motion.div variants={ANIMATION_VARIANTS.item} className="flex flex-wrap gap-3 mt-4 justify-center md:justify-start">
                   {user.awards.map((award, index) => (
@@ -275,7 +281,7 @@ const ProfilePage: React.FC = () => {
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <motion.p variants={ANIMATION_VARIANTS.item} className="text-base sm:text-lg md:text-xl text-white flex items-start gap-2">
-                  <span className="font-semibold text-orange-400">Plan:</span> {user.subscription.planName}
+                  <span className="font-semibold text-orange-400">Plan:</span> {user.subscription.plan}
                 </motion.p>
                 <motion.p variants={ANIMATION_VARIANTS.item} className="text-base sm:text-lg md:text-xl text-white flex items-start gap-2">
                   <span className="font-semibold text-orange-400">Start:</span> {new Date(user.subscription.startDate).toLocaleDateString()}

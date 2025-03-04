@@ -1,4 +1,5 @@
 import Billing from '@/components/Billing';
+import { BMIDrawer } from '@/components/Drawer';
 import Home from '@/components/Home';
 import OurProgramms from '@/components/OurProgramms';
 import Trainers from '@/components/Trainers';
@@ -15,6 +16,13 @@ const Page = () => {
           <IoChatbubbleEllipsesOutline className='text-xl animate-bounce group-hover:scale-110 transition-transform duration-300' />
         </div>
       </Link>
+
+     
+
+        <div>
+          <BMIDrawer/>
+        </div>
+     
 
 
       <section id="home">

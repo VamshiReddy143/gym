@@ -27,7 +27,7 @@ export async function GET(request: NextRequest, context:{ params:Promise<{ userI
       
 
         
-        return NextResponse.json({ success: true, user });
+        return NextResponse.json({ success: true, user })
     } catch (error) {
         console.error("Error fetching user profile:", error);
         return NextResponse.json({ success: false, message: "Failed to fetch user profile" }, { status: 500 });

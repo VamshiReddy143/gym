@@ -5,7 +5,8 @@ import mongoose from "mongoose";
 import Message from "./models/Message.js";
 import dotenv from "dotenv";
 
-dotenv.config();
+
+dotenv.config({ path: "./.env.local" }); 
 
 const avatarImages = [
   "/avatar1.png", "/avatar2.png", "/avatar3.png", "/avatar4.png", "/avatar5.png",
@@ -30,12 +31,23 @@ const io = new Server(server, {
   },
 });
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://vamshireddy19421:ZeoGFBOnhn8xO4X4@cluster0.vuddh.mongodb.net/";
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB error:", err));
+// Access MONGODB_URI and validate it
+const MONGODB_URI = process.env.MONGODB_URI;
 
-  const onlineUsers = new Map();
+if (!MONGODB_URI) {
+  console.error("Error: MONGODB_URI is not defined in the .env file");
+  process.exit(1);
+}
+
+mongoose
+  .connect(MONGODB_URI)
+  .then(() => console.log("MongoDB connected successfully"))
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+    process.exit(1); 
+  });
+
+const onlineUsers = new Map();
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);

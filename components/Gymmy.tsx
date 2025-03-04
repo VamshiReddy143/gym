@@ -12,7 +12,7 @@ interface GymmyProps {
   onClose: () => void;
 }
 
-// Constants
+// Animation Variants
 const ANIMATION_VARIANTS = {
   container: { initial: { opacity: 0, y: 50 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: 50 }, transition: { duration: 0.5, ease: "easeOut" } },
   header: { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { delay: 0.2, duration: 0.5 } },
@@ -24,12 +24,62 @@ const Gymmy: React.FC<GymmyProps> = ({ onClose }) => {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [position, setPosition] = useState({ x: window.innerWidth - 400, y: window.innerHeight - 600 }); // Initial position (top-right)
+  const [isDragging, setIsDragging] = useState(false);
+  const chatRef = useRef<HTMLDivElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const dragStartPos = useRef<{ x: number; y: number } | null>(null);
 
   // Scroll to Bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Dragging Handlers
+  const startDragging = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+    dragStartPos.current = { x: clientX - position.x, y: clientY - position.y };
+  }, [position]);
+
+  const onDrag = useCallback((e: MouseEvent | TouchEvent) => {
+    if (!isDragging || !dragStartPos.current) return;
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+
+    const newX = clientX - dragStartPos.current.x;
+    const newY = clientY - dragStartPos.current.y;
+
+    // Boundary constraints
+    const maxX = window.innerWidth - (chatRef.current?.offsetWidth || 400);
+    const maxY = window.innerHeight - (chatRef.current?.offsetHeight || 600);
+    setPosition({
+      x: Math.max(0, Math.min(newX, maxX)),
+      y: Math.max(0, Math.min(newY, maxY)),
+    });
+  }, [isDragging]);
+
+  const stopDragging = useCallback(() => {
+    setIsDragging(false);
+    dragStartPos.current = null;
+  }, []);
+
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener("mousemove", onDrag);
+      window.addEventListener("mouseup", stopDragging);
+      window.addEventListener("touchmove", onDrag);
+      window.addEventListener("touchend", stopDragging);
+    }
+    return () => {
+      window.removeEventListener("mousemove", onDrag);
+      window.removeEventListener("mouseup", stopDragging);
+      window.removeEventListener("touchmove", onDrag);
+      window.removeEventListener("touchend", stopDragging);
+    };
+  }, [isDragging, onDrag, stopDragging]);
 
   // Simulate Typing Effect
   const simulateTyping = useCallback(async (text: string, callback: (typedText: string) => void) => {
@@ -37,7 +87,7 @@ const Gymmy: React.FC<GymmyProps> = ({ onClose }) => {
     for (const char of text) {
       typedText += char;
       callback(typedText);
-      await new Promise((resolve) => setTimeout(resolve, 30)); // Adjustable typing speed
+      await new Promise((resolve) => setTimeout(resolve, 30));
     }
   }, []);
 
@@ -94,14 +144,25 @@ const Gymmy: React.FC<GymmyProps> = ({ onClose }) => {
   return (
     <motion.div
       {...ANIMATION_VARIANTS.container}
-      className="fixed bottom-20 right-2 sm:right-5 w-80 sm:w-96 md:w-[28rem] h-[32rem] bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl border-2 border-orange-600/60 overflow-hidden z-[1000] flex flex-col"
+      ref={chatRef}
+      style={{
+        position: "fixed",
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        width: "20rem", // Adjusted for consistency
+        height: "32rem",
+        zIndex: 1000,
+      }}
+      className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl border-2 border-orange-600/60 overflow-hidden flex flex-col shadow-[0_0_20px_rgba(255,165,0,0.4)]"
     >
-      {/* Header */}
+      {/* Draggable Header */}
       <motion.div
         {...ANIMATION_VARIANTS.header}
-        className="flex justify-between items-center p-3 sm:p-4 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-t-2xl"
+        onMouseDown={startDragging}
+        onTouchStart={startDragging}
+        className="flex justify-between items-center p-4 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-t-2xl cursor-move"
       >
-        <h2 className="text-lg sm:text-xl md:text-2xl font-extrabold uppercase tracking-wider">Gymmy Chat</h2>
+        <h2 className="text-xl font-extrabold uppercase tracking-wider">Gymmy Chat</h2>
         <motion.button
           whileHover={{ scale: 1.2, rotate: 90 }}
           whileTap={{ scale: 0.9 }}
@@ -114,13 +175,13 @@ const Gymmy: React.FC<GymmyProps> = ({ onClose }) => {
       </motion.div>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 bg-gray-800/90 backdrop-blur-md scrollbar-thin scrollbar-thumb-orange-600/50 scrollbar-track-gray-900">
+      <div className="flex-1 overflow-y-auto p-4 bg-gray-800/90 backdrop-blur-md scrollbar-thin scrollbar-thumb-orange-600/50 scrollbar-track-gray-900">
         <AnimatePresence>
           {messages.map((msg, index) => (
             <motion.div
               key={index}
               {...ANIMATION_VARIANTS.message}
-              className={`p-3 sm:p-4 my-2 sm:my-3 rounded-xl sm:rounded-2xl max-w-[85%] text-sm sm:text-base font-medium ${
+              className={`p-3 my-2 rounded-2xl max-w-[85%] text-sm font-medium ${
                 msg.startsWith("You:") ? "bg-gradient-to-r from-red-500 to-orange-500 text-white ml-auto" : "bg-gradient-to-r from-gray-700 to-gray-600 text-gray-100"
               }`}
             >
@@ -128,7 +189,7 @@ const Gymmy: React.FC<GymmyProps> = ({ onClose }) => {
             </motion.div>
           ))}
           {isLoading && (
-            <motion.div {...ANIMATION_VARIANTS.loading} className="p-3 sm:p-4 my-2 sm:my-3 rounded-xl sm:rounded-2xl max-w-[85%] bg-gray-700/50 flex justify-center">
+            <motion.div {...ANIMATION_VARIANTS.loading} className="p-3 my-2 rounded-2xl max-w-[85%] bg-gray-700/50 flex justify-center">
               <GymmyLoading />
             </motion.div>
           )}
@@ -137,14 +198,14 @@ const Gymmy: React.FC<GymmyProps> = ({ onClose }) => {
       </div>
 
       {/* Input Field */}
-      <form onSubmit={handleSubmit} className="flex items-center p-3 sm:p-4 border-t-2 border-orange-600/60 bg-gray-900/90 backdrop-blur-md">
+      <form onSubmit={handleSubmit} className="flex items-center p-4 border-t-2 border-orange-600/60 bg-gray-900/90 backdrop-blur-md">
         <motion.input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask Gymmy anything..."
           whileFocus={{ scale: 1.02 }}
-          className="flex-1 p-2 sm:p-3 text-white bg-gray-800/60 border-2 border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 placeholder-gray-500 font-medium"
+          className="flex-1 p-3 text-white bg-gray-800/60 border-2 border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 placeholder-gray-500 font-medium"
           aria-label="Chat input"
           disabled={isLoading}
         />
@@ -153,7 +214,7 @@ const Gymmy: React.FC<GymmyProps> = ({ onClose }) => {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           disabled={isLoading}
-          className="ml-2 sm:ml-4 p-2 sm:p-3 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-xl hover:from-red-700 hover:to-orange-700 transition-all duration-300 disabled:opacity-50"
+          className="ml-4 p-3 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-xl hover:from-red-700 hover:to-orange-700 transition-all duration-300 disabled:opacity-50"
           aria-label="Send message"
         >
           <Send size={18} />
@@ -163,4 +224,37 @@ const Gymmy: React.FC<GymmyProps> = ({ onClose }) => {
   );
 };
 
-export default Gymmy;
+// Parent Component to Toggle Chatbot
+const ChatbotToggle: React.FC = () => {
+  const [showChatbot, setShowChatbot] = useState(false);
+
+  return (
+    <>
+      {/* Desktop Button */}
+      <motion.button
+        whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(255,165,0,0.6)" }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setShowChatbot((prev) => !prev)}
+        className="hidden md:flex border-2 border-red-600 text-white p-1 sm:px-1 sm:py-2 md:px-3 md:py-1 rounded-full bg-gradient-to-r from-red-600/20 to-orange-600/20 hover:from-red-600/30 hover:to-orange-600/30 transition-all duration-300 text-sm md:text-base lg:text-lg font-bold uppercase tracking-wide fixed bottom-5 right-5 z-[999]"
+      >
+        ✨ AI
+      </motion.button>
+      {/* Mobile Button */}
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setShowChatbot((prev) => !prev)}
+        className="md:hidden border-2 border-red-600 text-white px-2 py-1 rounded-full bg-red-600/20 hover:bg-orange-600/30 transition-all duration-300 text-sm fixed bottom-5 right-5 z-[999]"
+      >
+        ✨
+      </motion.button>
+
+      {/* Chatbot */}
+      <AnimatePresence>
+        {showChatbot && <Gymmy onClose={() => setShowChatbot(false)} />}
+      </AnimatePresence>
+    </>
+  );
+};
+
+export default ChatbotToggle;

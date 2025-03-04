@@ -9,6 +9,7 @@ import Loading from "@/components/Loading";
 import { useRouter } from "next/navigation";
 import NextImage from "next/image";
 import Link from "next/link";
+import AddButton from "@/components/AddButton";
 
 // Types
 interface User {
@@ -24,6 +25,7 @@ interface User {
     price: number;
     qrCode: string;
   };
+
 }
 
 interface DashboardData {
@@ -36,7 +38,7 @@ interface DashboardData {
 }
 
 // Constants
-const DEFAULT_IMAGE = "/placeholder.png"; 
+const DEFAULT_IMAGE = "/placeholder.png";
 const ANIMATION_VARIANTS = {
   fadeIn: { opacity: 0, y: 50 },
   fadeInVisible: { opacity: 1, y: 0 },
@@ -94,14 +96,17 @@ const AdminDashboard: React.FC = () => {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
-  // Memoized filtered users
-  const filteredUsers = useMemo(
-    () =>
-      dashboardData.users.filter((user) =>
-        user.name.toLowerCase().includes(searchQuery.toLowerCase())
-      ),
-    [dashboardData.users, searchQuery]
-  );
+  // Memoized filtered and sorted users (admins first)
+  const filteredUsers = useMemo(() => {
+    const filtered = dashboardData.users.filter((user) =>
+      user.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    return filtered.sort((a, b) => {
+      if (a.role === "admin" && b.role !== "admin") return -1;
+      if (a.role !== "admin" && b.role === "admin") return 1;
+      return 0;
+    });
+  }, [dashboardData.users, searchQuery]);
 
   // Handlers
   const handleDeleteMember = (userId: string) => {
@@ -184,7 +189,33 @@ const AdminDashboard: React.FC = () => {
 
   const handleUserClick = (userId: string) => router.push(`/profile/${userId}`);
 
-  // Loading and Error States
+  // Unauthenticated State
+  if (status === "unauthenticated") {
+    return (
+      <div className="min-h-screen bg-black flex flex-col justify-center items-center text-white px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center"
+        >
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4">Please Log In</h2>
+          <p className="text-lg sm:text-xl mb-6">You need to be logged in to access the Admin Dashboard.</p>
+          <Link href={"/sign-in"}>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 rounded-full font-semibold text-lg"
+            >
+              Login Now
+            </motion.button>
+          </Link>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Loading State
   if (status === "loading" || isLoading) {
     return (
       <div className="min-h-screen bg-black flex justify-center items-center">
@@ -193,6 +224,32 @@ const AdminDashboard: React.FC = () => {
     );
   }
 
+  // Non-Admin State
+  if (!session?.user?.isAdmin) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col justify-center items-center text-white px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center"
+        >
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4">Access Denied</h2>
+          <p className="text-lg sm:text-xl mb-6">Only administrators can access this dashboard.</p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => router.push("/")}
+            className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 rounded-full font-semibold text-lg"
+          >
+            Return to Home
+          </motion.button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Error State
   if (error) {
     return (
       <div className="min-h-screen bg-black flex justify-center items-center">
@@ -201,6 +258,7 @@ const AdminDashboard: React.FC = () => {
     );
   }
 
+  // Admin Dashboard
   return (
     <div className="min-h-screen bg-black text-white px-4 sm:px-8 py-12 sm:py-16 overflow-hidden relative">
       {/* SEO-friendly meta content */}
@@ -322,13 +380,24 @@ const AdminDashboard: React.FC = () => {
           transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
           className="bg-gradient-to-br from-gray-900 to-gray-800 p-4 sm:p-6 rounded-2xl border-2 border-red-900/50"
         >
+
+
+
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold uppercase tracking-wide">User Management</h2>
-            <Link href="/admin/orders" className="mt-2 sm:mt-0">
-              <button className="px-3 sm:px-4 py-1 sm:py-2 bg-gradient-to-r from-red-600 to-orange-600 rounded-full font-semibold flex items-center gap-2">
-                Orders <span>➩</span>
-              </button>
-            </Link>
+
+            <div className="flex items-center gap-4">
+              <Link href="/admin/addproduct">
+                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                  <AddButton />
+                </motion.div>
+              </Link>
+              <Link href="/admin/orders" className="mt-2 sm:mt-0">
+                <button className="px-3 sm:px-4 py-1 sm:py-2 bg-gradient-to-r from-red-600 to-orange-600 rounded-full font-semibold flex items-center gap-2">
+                  Orders <span>➩</span>
+                </button>
+              </Link>
+            </div>
           </div>
 
           {/* Search Bar */}
@@ -373,7 +442,7 @@ const AdminDashboard: React.FC = () => {
                           alt={`${user.name}'s profile`}
                           width={40}
                           height={40}
-                          className="rounded-full object-cover"
+                          className="rounded-full h-10 w-10 object-cover"
                           loading="lazy"
                         />
                       </motion.div>
@@ -390,9 +459,8 @@ const AdminDashboard: React.FC = () => {
                     <td className="py-2 sm:py-3 px-2 sm:px-4 text-gray-300">{user.email}</td>
                     <td className="py-2 sm:py-3 px-2 sm:px-4">
                       <span
-                        className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${
-                          user.role === "admin" ? "bg-green-600" : user.role === "trainer" ? "bg-blue-600" : "bg-gray-600"
-                        }`}
+                        className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${user.role === "admin" ? "bg-green-600" : user.role === "trainer" ? "bg-blue-600" : "bg-gray-600"
+                          }`}
                       >
                         {user.role}
                       </span>
@@ -402,11 +470,10 @@ const AdminDashboard: React.FC = () => {
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.3 }}
-                        className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${
-                          hasMembership(user.subscription)
+                        className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${hasMembership(user.subscription)
                             ? "bg-green-600 text-white"
                             : "bg-gray-600 text-gray-300"
-                        }`}
+                          }`}
                       >
                         {hasMembership(user.subscription) ? (
                           <span className="flex items-center gap-1">
@@ -508,11 +575,10 @@ const Modal: React.FC<ModalProps> = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={onConfirm}
-              className={`flex-1 px-4 py-2 rounded-full font-semibold ${
-                title.includes("Delete")
+              className={`flex-1 px-4 py-2 rounded-full font-semibold ${title.includes("Delete")
                   ? "bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800"
                   : "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
-              }`}
+                }`}
             >
               {title.includes("Delete") ? "Yes, Delete" : "Yes, Grant"}
             </motion.button>

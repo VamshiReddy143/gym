@@ -7,6 +7,8 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState, useEffect, useCallback } from "react";
 import { FaTrophy } from "react-icons/fa";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 // Type Definitions
 interface Challenge {
@@ -168,26 +170,45 @@ const Page: React.FC = () => {
         if (!response.ok) throw new Error("Failed to complete challenge");
         const data = await response.json();
 
-        await fetchUserData(); // Sync with backend
-
+        // Update local challenges state
         setChallenges((prev) => prev.map((ch) => (ch._id === challengeId ? { ...ch, completed: true } : ch)));
 
+        // Update userData with completed challenges and streak
         setUserData((prev) => {
           if (!prev) return prev;
-          const updatedCompletedChallenges = data.user.completedChallenges;
-          const allCompleted = challenges.every((ch) => updatedCompletedChallenges.includes(ch._id));
-          if (allCompleted && !localStorage.getItem("congratsShown")) {
-            setShowCongrats(true);
-            localStorage.setItem("congratsShown", "true");
-          }
-          return { ...prev, completedChallenges: updatedCompletedChallenges, streak: data.user.streak };
+          const updatedCompletedChallenges = data.user.completedChallenges || prev.completedChallenges;
+          return { ...prev, completedChallenges: updatedCompletedChallenges, streak: data.user.streak || prev.streak };
         });
+
+        // Check if all challenges are completed and trigger popup
+        const allCompleted = challenges.every((ch) => (ch._id === challengeId ? true : userData?.completedChallenges?.includes(ch._id)));
+        if (allCompleted && localStorage.getItem("congratsShown")) {
+          setShowCongrats(true);
+          localStorage.setItem("congratsShown", "true");
+        }
       } catch (error) {
         console.error("Error completing challenge:", error);
+        alert("Failed to complete the challenge. Please try again later.");
       }
     },
-    [userId, challenges, fetchUserData]
+    [userId, challenges, userData]
   );
+
+  // Download Membership Slip
+  const downloadMembershipSlip = () => {
+    const element = document.getElementById("membership-slip");
+    if (!element) return;
+
+    html2canvas(element).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF();
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`${userData?.name || "User"}_Membership_Slip.pdf`);
+    });
+  };
 
   // Loading State
   if (loading) {
@@ -406,7 +427,7 @@ const Page: React.FC = () => {
             </div>
             <div className="flex flex-col sm:flex-row justify-between items-center bg-gray-900/50 p-3 sm:p-4 rounded-xl">
               <strong className="text-yellow-500 font-bold uppercase">Phone:</strong>
-              <p className="text-gray-200 font-semibold">{userData.phonenumber || "+1234567890"}</p>
+              <p className="text-gray-200 font-semibold">{userData.phonenumber || "set your mobile number"}</p>
             </div>
           </div>
         </motion.div>
@@ -423,7 +444,7 @@ const Page: React.FC = () => {
               <h2 className="text-2xl sm:text-4xl font-extrabold text-white uppercase tracking-wider mb-6 sm:mb-8">
                 Your <strong className="text-red-500 text-3xl sm:text-5xl">Elite</strong> Membership
               </h2>
-              <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-10">
+              <div id="membership-slip" className="flex flex-col md:flex-row items-center gap-6 sm:gap-10">
                 <div className="space-y-4 sm:space-y-6 flex-1 text-center md:text-left text-base sm:text-xl">
                   <p>
                     <span className="text-red-500 font-bold uppercase">Plan:</span>{" "}
@@ -468,22 +489,33 @@ const Page: React.FC = () => {
                   <p className="text-gray-400 italic">No QR Code available</p>
                 )}
               </div>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={fetchUserData}
-                className="mt-4 sm:mt-6 px-4 sm:px-6 py-2 bg-gradient-to-r from-red-600 to-orange-600 text-white font-semibold rounded-full"
-                aria-label="Refresh subscription data"
-              >
-                <RefreshCcwIcon className="w-5 h-5" />
-              </motion.button>
+              <div className="mt-4 sm:mt-6 flex gap-4">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={fetchUserData}
+                  className="px-4 sm:px-6 py-2 bg-gradient-to-r from-red-600 to-orange-600 text-white font-semibold rounded-full"
+                  aria-label="Refresh subscription data"
+                >
+                  <RefreshCcwIcon className="w-5 h-5" />
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={downloadMembershipSlip}
+                  className="px-4 sm:px-6 py-2 bg-gradient-to-r from-green-600 to-green-400 text-white font-semibold rounded-full"
+                  aria-label="Download membership slip"
+                >
+                  Download Slip
+                </motion.button>
+              </div>
             </div>
           ) : (
             <div className="text-center py-10 sm:py-12 relative z-10">
               <h2 className="text-3xl sm:text-5xl font-extrabold text-white uppercase tracking-wider animate-pulse">Unleash Your Potential</h2>
               <p className="text-lg sm:text-2xl text-gray-300 mt-4 sm:mt-6 font-semibold">No active plan—time to power up!</p>
               <Link
-                href="/subscribe"
+                href="/#billing"
                 className="mt-6 sm:mt-8 inline-block px-8 sm:px-10 py-3 sm:py-4 bg-gradient-to-r from-red-600 to-orange-600 text-white text-base sm:text-xl font-extrabold uppercase rounded-full hover:from-red-700 hover:to-orange-700 transition-all"
               >
                 Join the Elite Now
@@ -517,7 +549,10 @@ const Page: React.FC = () => {
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => completeChallenge(challenge._id)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    completeChallenge(challenge._id);
+                  }}
                   disabled={challenge.completed || userData.completedChallenges?.includes(challenge._id)}
                   className={`mt-4 sm:mt-6 w-full py-3 sm:py-4 px-4 sm:px-6 rounded-full text-base sm:text-xl font-extrabold uppercase transition-all relative z-10 ${
                     userData.completedChallenges?.includes(challenge._id)
