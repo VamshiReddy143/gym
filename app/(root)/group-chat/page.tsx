@@ -400,7 +400,7 @@ const GroupChatPage: React.FC = () => {
 
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "https://fitnass.onrender.com"
     const newSocket = io(socketUrl, {
-      path: "/socket.io",
+      path: "/api/socket",
       transports: ["websocket"],
       reconnection: true,
       reconnectionAttempts: 10,
