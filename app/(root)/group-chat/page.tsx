@@ -399,11 +399,13 @@ const GroupChatPage: React.FC = () => {
     fetchMessages();
 
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "https://fitnass.onrender.com"
+    console.log("Connecting to Socket.IO at:", socketUrl);
     const newSocket = io(socketUrl, {
       path: "/api/socket",
       transports: ["websocket"],
       reconnection: true,
       reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
     });
     setSocket(newSocket);
 
@@ -464,6 +466,7 @@ const GroupChatPage: React.FC = () => {
 
     return () => {
       newSocket.disconnect();
+      console.log("Socket disconnected");
     };
   }, [room, session?.user?.id]);
 

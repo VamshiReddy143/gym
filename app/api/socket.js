@@ -3,7 +3,6 @@ import { Server } from "socket.io";
 import mongoose from "mongoose";
 import Message from "../../models/Message"; // Adjust path as needed
 
-
 const avatarImages = [
   "/avatar1.png", "/avatar2.png", "/avatar3.png", "/avatar4.png", "/avatar5.png",
   "/avatar6.png", "/avatar7.png", "/avatar8.png", "/avatar9.png", "/avatar10.png",
@@ -16,21 +15,21 @@ const getRandomAvatar = () => {
   return avatarImages[randomIndex] || "/placeholder.png";
 };
 
-let io;
-
 export default async function handler(req, res) {
+  console.log("API /socket called with method:", req.method);
+
   if (res.socket.server.io) {
     console.log("Socket.IO server already running");
-    res.end();
+    res.status(200).json({ message: "Socket.IO server already initialized" });
     return;
   }
 
-  // Initialize Socket.IO
+  console.log("Initializing Socket.IO server...");
   const httpServer = res.socket.server;
-  io = new Server(httpServer, {
+  const io = new Server(httpServer, {
     path: "/api/socket",
     cors: {
-      origin: "*", // Adjust for production (e.g., "https://fitnass.onrender.com")
+      origin: "*", // Temporarily allow all origins for debugging
       methods: ["GET", "POST"],
     },
   });
@@ -39,18 +38,19 @@ export default async function handler(req, res) {
   const MONGODB_URI = process.env.MONGODB_URI;
   if (!MONGODB_URI) {
     console.error("Error: MONGODB_URI is not defined");
-    res.status(500).end();
+    res.status(500).json({ error: "MONGODB_URI not defined" });
     return;
   }
 
   if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(MONGODB_URI)
-      .then(() => console.log("MongoDB connected successfully"))
-      .catch((err) => {
-        console.error("MongoDB connection error:", err);
-        res.status(500).end();
-        return;
-      });
+    try {
+      await mongoose.connect(MONGODB_URI);
+      console.log("MongoDB connected successfully");
+    } catch (err) {
+      console.error("MongoDB connection error:", err);
+      res.status(500).json({ error: "MongoDB connection failed" });
+      return;
+    }
   }
 
   const onlineUsers = new Map();
@@ -77,41 +77,53 @@ export default async function handler(req, res) {
         timestamp: new Date(),
       });
 
-      const savedMessage = await message.save();
-      const messageToEmit = { ...savedMessage.toObject(), id: savedMessage._id.toString() };
-      io.to(data.room).emit("message", messageToEmit);
+      try {
+        const savedMessage = await message.save();
+        const messageToEmit = { ...savedMessage.toObject(), id: savedMessage._id.toString() };
+        io.to(data.room).emit("message", messageToEmit);
 
-      if (!onlineUsers.has(data.userId)) {
-        onlineUsers.set(data.userId, {
-          id: data.userId,
-          name: data.userName,
-          image: data.userImage,
-          socketId: socket.id,
-          online: true,
-        });
-        io.to(data.room).emit("userStatus", Array.from(onlineUsers.values()));
+        if (!onlineUsers.has(data.userId)) {
+          onlineUsers.set(data.userId, {
+            id: data.userId,
+            name: data.userName,
+            image: data.userImage,
+            socketId: socket.id,
+            online: true,
+          });
+          io.to(data.room).emit("userStatus", Array.from(onlineUsers.values()));
+        }
+      } catch (err) {
+        console.error("Error saving message:", err);
       }
     });
 
     socket.on("deleteMessage", async ({ id, room }) => {
-      await Message.findByIdAndDelete(id);
-      io.to(room).emit("messageDeleted", id);
+      try {
+        await Message.findByIdAndDelete(id);
+        io.to(room).emit("messageDeleted", id);
+      } catch (err) {
+        console.error("Error deleting message:", err);
+      }
     });
 
     socket.on("reaction", async ({ messageId, emoji, userId, room }) => {
-      const message = await Message.findById(messageId);
-      if (message) {
-        const reactions = message.reactions || {};
-        reactions[emoji] = reactions[emoji] || [];
-        if (reactions[emoji].includes(userId)) {
-          reactions[emoji] = reactions[emoji].filter((id) => id !== userId);
-        } else {
-          reactions[emoji].push(userId);
+      try {
+        const message = await Message.findById(messageId);
+        if (message) {
+          const reactions = message.reactions || {};
+          reactions[emoji] = reactions[emoji] || [];
+          if (reactions[emoji].includes(userId)) {
+            reactions[emoji] = reactions[emoji].filter((id) => id !== userId);
+          } else {
+            reactions[emoji].push(userId);
+          }
+          if (reactions[emoji].length === 0) delete reactions[emoji];
+          message.reactions = reactions;
+          await message.save();
+          io.to(room).emit("reaction", { messageId, emoji, userId });
         }
-        if (reactions[emoji].length === 0) delete reactions[emoji];
-        message.reactions = reactions;
-        await message.save();
-        io.to(room).emit("reaction", { messageId, emoji, userId });
+      } catch (err) {
+        console.error("Error handling reaction:", err);
       }
     });
 
@@ -130,8 +142,8 @@ export default async function handler(req, res) {
   });
 
   res.socket.server.io = io;
-  console.log("Socket.IO server initialized");
-  res.end();
+  console.log("Socket.IO server initialized successfully");
+  res.status(200).json({ message: "Socket.IO server initialized" });
 }
 
 export const config = {
