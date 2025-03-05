@@ -175,7 +175,7 @@ const AdminOrdersPage: React.FC = () => {
 
                 {/* Order Items */}
                 <div className="space-y-4 mb-4 sm:mb-6">
-                  {order.items.map((item) => (
+                  {order.items && order.items.map((item) => (
                     <div key={item.product._id} className="flex items-center gap-3 sm:gap-4">
                       <NextImage
                         src={item.product.image}

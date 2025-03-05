@@ -169,7 +169,7 @@ const ProfilePage: React.FC = () => {
               className="w-28 h-28 sm:w-40 sm:h-40 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-orange-600/60 shadow-[0_0_25px_rgba(255,165,0,0.4)] relative"
             >
               <NextImage
-                src={user.image || "/default-avatar.png"}
+                src={user.image || "/placeholder.png"}
                 alt={`${user.name}'s avatar`}
                 width={224}
                 height={224}
