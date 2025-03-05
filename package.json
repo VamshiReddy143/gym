@@ -4,12 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev ",
-    "socket": "ts-node --transpile-only server.js",
-    "start": "concurrently \"npm run dev\" \"npm run socket\"",
-    "build": "next build",
-    "start:prod": "next start"
-  },
+  "dev": "next dev",
+  "socket": "ts-node --transpile-only server.js",
+  "build": "next build",
+  "start": "next start"
+},
+
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^4.1.2",
